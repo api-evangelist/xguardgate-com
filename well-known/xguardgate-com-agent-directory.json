@@ -1,0 +1,1 @@
+{"name":"XGuard","agents":[{"name":"XGuard","card":"https://api.xguardgate.com/.well-known/agent-card.json","mcp":"https://api.xguardgate.com/mcp","capabilities":"https://api.xguardgate.com/v1/capabilities","pricing":"https://api.xguardgate.com/v1/pricing","openapi":"https://api.xguardgate.com/openapi.json"}]}

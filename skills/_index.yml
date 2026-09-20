@@ -1,0 +1,33 @@
+generated: '2026-09-19'
+method: generated
+source: >-
+  openapi/xguardgate-com-openapi.json (xguardExecute is the ONLY operationId the provider declares; every other
+  route is named by method + path exactly as the spec publishes it), the provider's README, developers page,
+  docs/public-gateway-contract.md, docs/secretless-outcomes.md, the egress manifest and the live probes recorded
+  in conventions/, errors/ and sandbox/. XGuard publishes agent instructions (llms.txt / agent.txt, saved to
+  llms/) and MCP initialize instructions, but no packaged skills or AGENTS.md (probed 2026-09-19).
+skills:
+- file: xguardgate-com-free-extraction-preview.md
+  name: xguardgate-com-free-extraction-preview
+  method: generated
+  description: Get a real, free XGuard extraction result from labelled sample data or your own HTML, with no account, key or wallet, and read the response envelope correctly.
+  api: openapi/xguardgate-com-openapi.json
+  operations: 2
+  operation_ids: [xguardExecute]
+  routes: ['POST /v1/execute', 'GET /v1/capabilities']
+- file: xguardgate-com-paid-outcome-x402.md
+  name: xguardgate-com-paid-outcome-x402
+  method: generated
+  description: Run a paid public-source outcome (web-extraction, product-offers or feed-digest) through the x402 v2 quote -> 402 -> sign -> retry flow, within an explicit budget, and recover the result without ever paying twice.
+  api: openapi/xguardgate-com-openapi.json
+  operations: 4
+  operation_ids: [xguardExecute]
+  routes: ['POST /v1/pricing/quote', 'POST /v1/execute', 'GET /v1/results/{payment_identifier}', 'GET /v1/operations/{payment_identifier}']
+- file: xguardgate-com-secretless-egress.md
+  name: xguardgate-com-secretless-egress
+  method: generated
+  description: As an operator, store an upstream credential and issue a scoped capability; as an agent, make an idempotent credential-backed upstream call through XGuard and handle 409/402/503 the way the contract requires; then revoke.
+  api: openapi/xguardgate-com-openapi.json
+  operations: 5
+  operation_ids: []
+  routes: ['POST /v1/egress/credentials', 'POST /v1/egress/capabilities', 'POST /v1/egress/fetch', 'DELETE /v1/egress/capabilities/{id}', 'GET /v1/egress/providers']

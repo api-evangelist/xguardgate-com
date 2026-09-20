@@ -1,0 +1,124 @@
+generated: '2026-09-19'
+method: searched
+source: https://xguardgate.com/pricing
+docs:
+- https://xguardgate.com/pricing/operator
+- https://api.xguardgate.com/v1/pricing
+- https://api.xguardgate.com/.well-known/payment-manifest
+- https://api.xguardgate.com/v1/egress/pricing
+- https://api.xguardgate.com/docs
+- https://reconcile.xguardgate.com/
+probed:
+- {url: 'https://api.xguardgate.com/v1/pricing', status: 200, fetched: '2026-09-19', note: 'Machine-readable prices; amounts below are copied from it and match the HTML pricing page.'}
+- {url: 'https://api.xguardgate.com/v1/payment/readiness', status: 200, fetched: '2026-09-19', note: 'production_payment_ready true; real_revenue_observed false.'}
+- {url: 'https://api.xguardgate.com/v1/metrics', status: 200, fetched: '2026-09-19', note: 'settled_usd_micros 0; execution_succeeded 11 since 2026-09-02 (free path); the provider publishes its own counters.'}
+plan_count: 11
+currency: USDC
+model: >-
+  Pay-per-execution in USDC on Base via x402 v2 for the public path - "There is no XGuard subscription or minimum
+  purchase for x402 outcomes. Wallet funding is separate." - plus a separate prepaid Usage Credit pool for
+  operator-managed Secretless Egress, Action Rail, the facilitator relay and the Edge proxy, bought once by card
+  (Lemon Squeezy) and priced in Jordanian dinar. No tiers, no seats, no rate plans; every price is per bounded
+  execution or per successful transaction, with free allowances stated per surface.
+summary: >-
+  Four public outcomes: free preview, 0.003 USDC multi-page extraction, 0.006 USDC product-offer comparison,
+  0.002 USDC feed digest, each "per bounded execution, including fallback", quantity exactly one, quote valid
+  300 seconds. The compatible xguard.web.fetch tool is $0.001 USDC per fetch and the companion Reconcile API is
+  $0.002 USDC per call. Operator Usage Credits cost JOD 3.550 per 5,000 and are consumed at 1 credit per
+  authorized egress attempt, 1 per successful Action Rail execution, 2 per successful settlement after 25 free
+  per merchant (verification free), and 1 per successful Edge transaction after 1,000 free per host. If every
+  source fails after settlement the buyer receives an execution credit, not a refund. The provider's own
+  readiness and metrics endpoints report no real revenue observed as of 2026-09-19.
+plans:
+- id: extract-preview
+  name: Free extraction preview
+  price: 0
+  currency: USDC
+  period: per execution
+  included: Supplied HTML (up to 12 KiB) or labelled sample; text, metadata, offers and digests; no outbound calls
+  limits: ['html <= 12,288 characters', 'no live fetch']
+  surfaces: [REST xguardExecute, MCP xguard_execute, A2A skill extract-preview]
+- id: web-extraction
+  name: Multi-page evidence extraction
+  price: 0.003
+  currency: USDC
+  period: per execution
+  included: Up to three public pages -> normalized documents, duplicate groups, coverage, retrieval timestamps and source hashes; bounded source fallback included
+  limits: ['urls/sources <= 3 (+1 fallback each)', 'public HTML, text or JSON only; no JavaScript rendering or search', 'quote expires in 300 s']
+  network: eip155:8453
+- id: product-offers
+  name: Structured product offer comparison
+  price: 0.006
+  currency: USDC
+  period: per execution
+  included: Schema.org offers from up to three product pages, grouped by identifier and currency with source evidence; missing identifiers and unsupported pages explicitly reported
+  limits: ['urls <= 3', 'merchant data not independently verified']
+  network: eip155:8453
+- id: feed-digest
+  name: Deduplicated feed digest
+  price: 0.002
+  currency: USDC
+  period: per execution
+  included: Up to 30 deduplicated RSS/Atom entries with source attribution, publication times, coverage and digests; a technology source set is provided when none is supplied
+  limits: ['limit 1-30', 'sources <= 3']
+  network: eip155:8453
+- id: web-fetch
+  name: xguard.web.fetch (compatible paid fetch)
+  price: 0.001
+  currency: USDC
+  period: per fetch
+  included: One public HTTPS fetch after x402 settlement, with signed receipt and ProofRail evidence; Base Sepolia testnet twin at no revenue
+  source: https://xguardgate.com/pricing/operator
+  note: '"Public fetch has no external API fee. The $0.001 price is revenue before infrastructure and other costs, not measured profit."'
+- id: reconcile
+  name: XGuard Reconcile
+  price: 0.002
+  currency: USDC
+  period: per call
+  included: EIP-3009 authorization state and settlement transaction hash for one {from, nonce} after a facilitator timeout
+  source: https://reconcile.xguardgate.com/
+- id: operator-usage-credits
+  name: Operator Usage Credits
+  price: 3.55
+  currency: JOD
+  period: one-time
+  included: 5,000 Usage Credits for operator-managed Secretless Egress (and the other credit-metered surfaces below); not a subscription; card checkout via Lemon Squeezy; credits available only after a valid webhook is processed
+  source: https://xguardgate.com/pricing/operator
+  note: Operator credits "fund Secretless Egress only; they do not pay for the public-source outcomes above" (pricing page).
+- id: secretless-egress
+  name: Secretless Egress
+  price: 1
+  currency: Usage Credits
+  period: per authorized egress attempt
+  included: One credential-injected upstream request with proof; identical retry (same key) replays free
+  overage: 'Upstream vendor fees are billed to the operator by the vendor, separately'
+  billing_boundary: 'Credits consumed before credential release and before outbound egress; failed billing sends no upstream request; upstream failure after billing remains billed'
+  source: https://api.xguardgate.com/v1/egress/pricing
+- id: action-rail
+  name: Action Rail
+  price: 1
+  currency: Usage Credits
+  period: per successful execution
+  included: Signed single-use permit + controlled execution; credits checked before execution and consumed only after a 2xx/3xx upstream result
+  source: https://api.xguardgate.com/.well-known/xguard-actions.json
+- id: facilitator-relay
+  name: x402 facilitator relay (verify / settle)
+  price: 2
+  currency: Usage Credits
+  period: per successful settlement
+  included: verify free; first 25 successful settlements per merchant free; failed settlements not charged; standalone reconcile $0.002 USDC/call
+  source: https://api.xguardgate.com/docs
+- id: universal-edge
+  name: Universal Edge proxy
+  price: 1
+  currency: Usage Credits
+  period: per successful edge transaction
+  included: First 1,000 successful edge transactions per merchant host free; reads and failed transactions free; max body 1 MiB
+  source: https://api.xguardgate.com/docs
+free_tier:
+  public: 'extract-preview (unlimited, no key); price quotes, preflight and ATS-100 test are free'
+  operator: '25 successful settlements per merchant; 1,000 successful edge transactions per host'
+enterprise: none published; no "contact sales" tier
+refunds:
+  policy: https://xguardgate.com/refund-policy
+  summary: x402 outcomes are non-refundable (execution credit on total source failure); operator credit refunds are provider-confirmed and reconciled against the credit balance, timing subject to the checkout provider

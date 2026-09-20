@@ -1,0 +1,142 @@
+generated: '2026-09-19'
+method: derived
+source: openapi/xguardgate-com-openapi.json
+docs:
+- https://api.xguardgate.com/.well-known/payment-manifest
+- https://api.xguardgate.com/.well-known/xguard-egress.json
+- https://api.xguardgate.com/v1/proof
+- https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+summary: >-
+  The OpenAPI declares a single component schema (PublicError), so the entity graph is derived from the inline
+  request bodies, the live responses observed on 2026-09-19 and the provider's machine manifests. Three roots:
+  the CAPABILITY (one of four outcome ids, the same string used as an A2A skill id and as the capability field
+  on /v1/execute), the OPERATOR (identified by a hashed X-XGuard-Key, owns credentials, capabilities and Usage
+  Credits) and the PAYMENT IDENTIFIER (pay_..., minted inside a signed Quote and carried through settlement,
+  Receipt, Result and Proof). Nothing links by $ref; every relationship is an id field (payment_identifier,
+  quote_id, receipt_id, credential_id, capability id, permit_id, execution id, request_id) and the recovery
+  credential is the Quote itself. There is no expansion parameter and no list pagination.
+id_style:
+  format: 'opaque prefixed strings: <prefix>_<32 lowercase hex>'
+  prefixes:
+  - {entity: Request, prefix: xgr_, example: xgr_ae4396f375c8459ba88d3295fe6c298d, source: 'x-xguard-request-id header / request_id body on every response'}
+  - {entity: Quote, prefix: xgq_, example: xgq_b4b5dd451ebf4aad9f967c81911d94e9, source: '402 accepts[].extra.quoteId and the quote JWS claim quote_id'}
+  - {entity: PaymentIdentifier, prefix: pay_, example: pay_899271abd5494fb4a78badfd6a4a77c1, source: 'x-xguard-payment-identifier header; 402 extensions.payment-identifier.info.id'}
+  - {entity: EgressCapability, prefix: xgc_, source: 'ai-plugin.json auth: "agent egress uses a scoped xgc_ capability"'}
+  - {entity: Capability (outcome), format: 'human-readable slug', values: [extract-preview, web-extraction, product-offers, feed-digest]}
+  - {entity: Wallet / payTo / asset, format: '0x EVM address (Base, eip155:8453)'}
+entities:
+- name: Capability
+  description: An executable public-source outcome with an exact price, input/output schema and examples. Four exist; the same id is the A2A skill id and the MCP capability enum.
+  read: ['GET /v1/capabilities', 'GET /v1/capabilities/{id}', 'GET /v1/pricing']
+  fields: [id, name, description, when_to_use, input_schema, output_schema, amount_atomic, amount, currency USDC, decimals 6, exact, includes_fallback, delivered, quote_expires_seconds 300, network, asset, pay_to, minimum_quantity 1, maximum_quantity 1]
+  relationships:
+  - {has_many: Quote, via: capability}
+  - {has_many: Outcome, via: capability}
+- name: ExecuteRequest (Intent)
+  description: The body of POST /v1/execute - a free-text or structured intent plus optional capability, up to three urls/sources (each with <= 1 fallback), html for the free preview, limit, max_age_seconds, query, testnet, and the tool-call wrappers (input, arguments, name, tool, tool_id, toolId, function, type).
+  write: [xguardExecute]
+  relationships:
+  - {belongs_to: Capability, via: capability (resolved from intent when omitted)}
+  - {has_one: Quote, via: input_digest (sha256 of the normalized input)}
+- name: Quote
+  description: A five-minute ES256 JWS signed by did:web:api.xguardgate.com#xguard-proofrail binding capability, input_digest, price (amount_atomic, currency, network, asset, pay_to), payment_identifier, quote_id, expires_at and payment_flow. Returned in the X-XGuard-Quote header and 402 body; also the bearer recovery credential.
+  read: ['POST /v1/pricing/quote']
+  fields: [quote_id, payment_identifier, capability, input_digest, amount, asset, network, pay_to, expires_at, issued_at, payment_environment, payment_rail, payment_flow, cost_budget]
+  relationships:
+  - {belongs_to: Capability, via: capability}
+  - {has_one: PaymentIdentifier, via: payment_identifier}
+  - {has_one: ExecuteRequest, via: input_digest}
+- name: PaymentIdentifier (Operation)
+  description: The durable identity of one paid attempt - "the durable payment identifier plus original quote is the outcome idempotency contract". Readable as an operation state.
+  read: ['GET /v1/operations/{payment_identifier}', 'GET /v1/results/{payment_identifier}']
+  relationships:
+  - {belongs_to: Quote, via: quote_id}
+  - {has_one: Outcome, via: payment_identifier}
+  - {has_one: Receipt, via: receipt_id}
+  - {has_one: ExecutionCredit, via: payment_identifier, note: only when every source failed after settlement}
+  - {has_many: Proof, via: payment_identifier}
+- name: Outcome (Result)
+  description: 'The normalized result envelope: {ok, request_id, intent, capability, result{...}, verification{result_sha256, content_truth_verified, signed}, cost{amount_atomic, amount, currency}, receipt, next}. result shape varies per capability (documents + duplicate groups; offers + comparable groups; feed entries + coverage + digests).'
+  read: [xguardExecute, 'GET /v1/results/{payment_identifier}']
+  relationships:
+  - {belongs_to: PaymentIdentifier, via: payment_identifier}
+  - {has_one: Receipt, via: receipt}
+  - {has_many: SourceDigest, via: result.sources / result.digests}
+- name: SourceDigest
+  description: Per-source provenance record (source_url, retrieval timestamp, sha256 of observed content, fallback used). "A signed source digest records what was observed. It does not prove that an article is true."
+  relationships:
+  - {belongs_to: Outcome}
+- name: Receipt
+  description: Durable settlement receipt for an x402 payment routed or settled by XGuard.
+  read: ['GET /v1/receipts/{receipt_id}']
+  relationships:
+  - {belongs_to: PaymentIdentifier, via: payment_identifier}
+- name: ExecutionCredit
+  description: Signed, reusable credit tied to the original payment, issued when execution fails after settlement; redeemed with X-XGuard-Credit + the original quote. Not a cash refund.
+  relationships:
+  - {belongs_to: PaymentIdentifier}
+  - {belongs_to: Capability, via: 'same outcome only'}
+- name: Proof (ProofRail)
+  description: 'ES256 compact proof over {request_id, payment_identifier, transaction, amount_atomic, tool, input_digest, source_origin, source_path, body_sha256, executed_at, proof_id, capability_id, target_origin, ...}; carried in x-xguard-proof, verified at POST /v1/proofs/verify against /.well-known/xguard-proof-key.json.'
+  read: ['GET /v1/proof', 'POST /v1/proofs/verify']
+  relationships:
+  - {belongs_to: PaymentIdentifier, via: payment_identifier, note: paid tools}
+  - {belongs_to: EgressExecution, via: capability_id + execution id, note: Secretless Egress}
+- name: Operator
+  description: An account identified only by an irreversible hash of its X-XGuard-Key; holds Usage Credits (balance, ledger), credentials and issued capabilities. Card checkout via Lemon Squeezy; credits arrive on a processed webhook.
+  read: ['GET /v1/balance (401 without key)', 'GET /v1/ledger']
+  relationships:
+  - {has_many: Credential, via: credential_id}
+  - {has_many: EgressCapability, via: capability id}
+  - {has_many: ActionPermit, via: permit_id}
+  - {has_many: Mandate}
+  - {has_one: UsageCreditBalance}
+- name: Credential
+  description: An encrypted upstream API secret (per-record AES-GCM key wrapped by an RSA-OAEP authority) for a named provider (openai, anthropic, github, stripe, slack, notion, cloudflare, gemini or custom {header_name, allowed_hosts}); the secret is never returned.
+  write: ['POST /v1/egress/credentials']
+  read: ['GET /v1/egress/credentials (metadata only)']
+  relationships:
+  - {belongs_to: Operator}
+  - {has_many: EgressCapability, via: credential_id}
+- name: EgressCapability
+  description: 'Short-lived scoped grant handed to an agent instead of the secret: credential_id, target_origin, path_prefix, allowed_methods, ttl_seconds (30-3600), max_calls, max_total_credits, max_credits_per_call. Revocable.'
+  write: ['POST /v1/egress/capabilities', 'DELETE /v1/egress/capabilities/{id}']
+  relationships:
+  - {belongs_to: Credential, via: credential_id}
+  - {belongs_to: Operator}
+  - {has_many: EgressExecution, via: capability}
+- name: EgressExecution
+  description: One credential-backed upstream call (target, method, headers, body_*) keyed by capability + Idempotency-Key + exact request digest; stores the upstream status/body/proof for replay (X-XGuard-Replay), billed 1 Usage Credit before credential release; results deleted 24 h after capability expiry.
+  write: ['POST /v1/egress/fetch']
+  relationships:
+  - {belongs_to: EgressCapability, via: capability}
+  - {has_one: Proof, via: x-xguard-proof}
+  - {consumes: UsageCredit, via: max_credits_per_call}
+- name: Mandate
+  description: A scoped delegation (action allowlist, merchant allowlist, budget, daily limits) that an Action Rail permit must reference; created at POST /v1/mandates per /docs (not in the OpenAPI).
+  relationships:
+  - {belongs_to: Operator}
+  - {has_many: ActionPermit}
+- name: ActionPermit
+  description: A cryptographically signed, single-use permit bound to target, method, action and request; executed once at POST /v1/actions/execute, billed 1 credit only after a 2xx/3xx upstream result.
+  write: ['POST /v1/actions/permits', 'POST /v1/actions/execute']
+  read: ['GET /v1/actions/permits/{permit_id} (per manifest; not in the OpenAPI)']
+  relationships:
+  - {belongs_to: Mandate}
+  - {belongs_to: Operator}
+- name: MerchantHost (Edge)
+  description: A merchant hostname that has published _xguard.<host> TXT "xguard-edge=enabled" and is proxied at /edge/<merchant-host>/<path>; first 1,000 successful edge transactions per host free, then 1 credit each.
+  write: ['POST /edge/{merchant-host}/{path}']
+- name: PaymentKind / FacilitatorRoute
+  description: An x402 {x402Version, scheme, network} triple supported by at least one healthy upstream facilitator; the relay selects a route per kind.
+  read: ['GET /supported', 'GET /v1/facilitator/route', 'GET /facilitator', 'GET /.well-known/x402']
+- name: BazaarResource
+  description: An x402 discovery record (resource URL, description, accepts[], input/output schema) aggregated from upstream catalogs.
+  read: ['GET /discovery/resources', 'GET /discovery/search']
+- name: TransactionSample (ATS-100)
+  description: '{target, method, headers, body} scored 0-100 across six weighted checks; the target is never contacted.'
+  read: ['POST /v1/test', 'POST /v1/inspect', 'GET /v1/test/schema']
+- name: PublicError
+  description: The only declared component schema - see errors/xguardgate-com-problem-types.yml.
+  schema: openapi/xguardgate-com-openapi.json#/components/schemas/PublicError
+render: null

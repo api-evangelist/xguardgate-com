@@ -64,5 +64,12 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-XGuard is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry) and added to the network as a stub for full-pipeline profiling.
-- https://xguardgate.com/
+XGuard is a paid-tool and credential-brokering gateway for AI agents at xguardgate.com (API at api.xguardgate.com; source at github.com/moelayyan90/XGuard, Apache-2.0). Its canonical product, "XGuard Universal Paid AI Agent + Secretless Gateway" v5.1.0, sells four public-source outcomes (free HTML extraction preview, multi-page evidence extraction, Schema.org product-offer comparison, deduplicated RSS/Atom feed digest) to any agent with no account or key, priced per execution in USDC on Base (0.002-0.006 USDC) and settled through x402 v2 before the sources are touched, with a signed quote, replay-safe payment identifier, signed receipt and ES256 ProofRail evidence. Secretless Egress lets an operator store an upstream API credential and hand an agent a short-lived scoped capability instead of the secret. The catalog is exposed as a 49-operation OpenAPI 3.1.0 contract, a remote MCP server that answers tools/list anonymously, an A2A 1.0.0 agent card, an OpenAI plugin manifest, llms.txt and a set of x402 payment, egress and action manifests; a companion settlement-reconciliation API runs at reconcile.xguardgate.com.
+
+- Website: https://xguardgate.com/
+- Developers: https://xguardgate.com/developers
+- Pricing: https://xguardgate.com/pricing
+- OpenAPI: https://api.xguardgate.com/openapi.json
+- MCP: https://api.xguardgate.com/mcp
+- A2A agent card: https://api.xguardgate.com/.well-known/agent-card.json
+- Profiled 2026-09-19 from the provider's public surface; first surfaced through a2aregistry.org.

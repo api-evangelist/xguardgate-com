@@ -1,0 +1,110 @@
+generated: '2026-09-19'
+method: probed
+source: https://api.xguardgate.com/.well-known/agent-card.json
+card:
+  file: a2a/xguardgate-com-agent-card.json
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: api.xguardgate.com
+  note: >-
+    The provider's own manifests name https://api.xguardgate.com/.well-known/agent-card.json as the canonical
+    card (xguard.json canonical_a2a_card, the healthz and agent-directory documents, the homepage link), and the
+    same 3,289-byte document is served byte-identically from four locations: api.xguardgate.com and
+    xguardgate.com, each at both /.well-known/agent-card.json and the legacy /.well-known/agent.json, always as
+    application/a2a+json. www.xguardgate.com 308s every path to the apex, and /agent-card.json on either host
+    308s to the well-known path. The negative-control path
+    /.well-known/xguardgate-com-negative-control-4b9e2c71.json returns the site's real JSON 404 envelope on all
+    three hosts, and /.well-known/openid-configuration, /api-catalog and /mcp.json also 404, so the 200 is a
+    served document and not a catch-all. Ownership is not in question: provider.organization is "XGuard" with
+    provider.url https://xguardgate.com, the OpenAPI on the same host titles itself "XGuard Universal Paid AI
+    Agent + Secretless Gateway" with servers[] https://api.xguardgate.com, and every API response carries
+    x-xguard-canonical-site / x-xguard-canonical-api headers naming these hosts.
+x-evidence:
+  fetched: '2026-09-19'
+  url: https://api.xguardgate.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/a2a+json; charset=utf-8
+  body_bytes: 3289
+  body_parses_as: JSON object with AgentCard shape (name, description, supportedInterfaces[], provider, version, documentationUrl, capabilities{}, defaultInputModes, defaultOutputModes, skills[], iconUrl)
+  corroborating_probes:
+  - {url: 'https://api.xguardgate.com/.well-known/agent.json', http_status: 200, note: 'Legacy path; byte-identical body.'}
+  - {url: 'https://xguardgate.com/.well-known/agent-card.json', http_status: 200, note: 'Website host; byte-identical body.'}
+  - {url: 'https://xguardgate.com/.well-known/agent.json', http_status: 200, note: 'Website host, legacy path; byte-identical body.'}
+  - {url: 'https://www.xguardgate.com/.well-known/agent-card.json', http_status: 308, note: 'Redirects to https://xguardgate.com/.well-known/agent-card.json.'}
+  - {url: 'https://api.xguardgate.com/agent-card.json', http_status: 308, note: 'The OpenAPI declares this as a "canonical discovery alias"; it redirects to the well-known path.'}
+  - {url: 'https://reconcile.xguardgate.com/.well-known/agent-card.json', http_status: 404, note: 'The companion Reconcile host serves no card (13-byte text/plain 404).'}
+  - {url: 'https://api.xguardgate.com/a2a', method: GET, http_status: 200, content_type: application/a2a+json, note: 'A GET on the declared JSON-RPC endpoint returns {"agent_card": <the same card>, "discovery": {...}} - the endpoint self-describes.'}
+  - {url: 'https://api.xguardgate.com/a2a', method: POST, body: '{"jsonrpc":"2.0","id":1,"method":"tasks/get","params":{"id":"apievangelist-nonexistent-probe"}}', http_status: 200, response: '{"jsonrpc":"2.0","id":1,"error":{"code":-32004,"message":"Unsupported operation","data":{"supported":["SendMessage"]}}}', note: 'A live JSON-RPC 2.0 responder. -32004 is the A2A UnsupportedOperationError code; the server states SendMessage is the only operation it implements, consistent with the card declaring no streaming, push notifications or extended card. No message was sent and nothing was purchased.'}
+  - {url: 'https://api.xguardgate.com/a2a', method: POST, body: '{"jsonrpc":"2.0","id":2,"method":"agent/getAuthenticatedExtendedCard","params":{}}', http_status: 200, response: '{"jsonrpc":"2.0","id":2,"error":{"code":-32004,"message":"Unsupported operation","data":{"supported":["SendMessage"]}}}'}
+  - {url: 'https://a2aregistry.org', note: 'The card was first seen as one of 415 agents listed on a2aregistry.org (fetched 2026-09-19, author "XGuard"), which is how this provider entered the harvest backlog. The registry listing was the lead; the card above was fetched directly from the provider''s host.'}
+conformance:
+  spec: A2A 1.0.0
+  grade: conformant
+  protocol_version: '1.0.0'
+  preferred_transport: JSONRPC
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  optional_fields:
+    defaultInputModes: ['text/plain', 'application/json']
+    defaultOutputModes: ['text/plain', 'application/json']
+    provider: {organization: XGuard, url: 'https://xguardgate.com'}
+    documentationUrl: https://xguardgate.com
+    iconUrl: https://xguardgate.com/logo.svg
+  grade_basis: >-
+    Graded against the A2A 1.0.0 hard checks: capabilities is an OBJECT (streaming false, pushNotifications
+    false, extendedAgentCard false, extensions[1]) - pass; protocolVersion is present ("1.0.0", declared on the
+    interface entry in supportedInterfaces[], which is where A2A 1.0 places it; the card has no top-level
+    protocolVersion or url because 1.0 replaced url/preferredTransport/additionalInterfaces with
+    supportedInterfaces[{url, protocolBinding, protocolVersion}]) - pass; skills is an ARRAY of 4 - pass.
+    defaultInputModes, defaultOutputModes and provider are all declared. A grader applying the 0.3.x field
+    names literally would see "supportedInterfaces instead of additionalInterfaces" and "no top-level
+    protocolVersion"; those are the 1.0 shape the card announces, not omissions, and are recorded below rather
+    than penalised.
+  deviations:
+  - field: supportedInterfaces
+    observed: '[{url: https://api.xguardgate.com/a2a, protocolBinding: JSONRPC, protocolVersion: "1.0.0"}]'
+    note: A2A 1.0 shape; a 0.3-era client looking for top-level url / preferredTransport / additionalInterfaces will not find them.
+  - field: canonical_identity
+    observed: 'non-standard top-level object {name, version, primary_product, primary_role, site, api, mcp}'
+    note: Provider extension outside the AgentCard schema; harmless to a tolerant parser.
+  - field: capabilities.extensions[0].params
+    observed: 'object of provider-specific keys (direct_execution, quote_optional, challenge_status 402, challenge_header, quote_header, retry_header, settlement_before_execution)'
+    note: The extension declares x402 v2 paid execution by pointing at https://api.xguardgate.com/.well-known/payment-manifest; required is false, so every skill has a free-preview path and payment is only demanded for live execution.
+  - field: skills[].examples
+    observed: 'JSON strings such as {"intent":"demo"} rather than natural-language prompts'
+    note: Valid (examples is string[]); they double as the exact request bodies for the REST twin.
+agent_card:
+  name: XGuard Universal Paid AI Agent + Secretless Gateway
+  description: >-
+    Execute public-source outcomes: multi-page extraction, structured product offers, and deduplicated feed
+    digests. Free extraction preview; exact x402 price before live execution.
+  url: https://api.xguardgate.com/a2a
+  version: 5.1.0
+  protocol_version: '1.0.0'
+  protocol_binding: JSONRPC
+  provider:
+    organization: XGuard
+    url: https://xguardgate.com
+  capabilities:
+    streaming: false
+    push_notifications: false
+    extended_agent_card: false
+    extensions:
+    - uri: https://api.xguardgate.com/.well-known/payment-manifest
+      description: x402 v2 paid outcome execution
+      required: false
+  skills: 4
+  skill_ids: [extract-preview, web-extraction, product-offers, feed-digest]
+  skill_names: ['Free extraction preview', 'Multi-page evidence extraction', 'Structured product offer comparison', 'Deduplicated feed digest']
+  skill_prices_usdc: {extract-preview: '0.000000', web-extraction: '0.003000', product-offers: '0.006000', feed-digest: '0.002000'}
+  input_modes: ['application/json', 'text/plain']
+  output_modes: ['application/json']
+  documentation_url: https://xguardgate.com
+  icon_url: https://xguardgate.com/logo.svg
+  supported_operations: [SendMessage]
+  usage: 'Per the provider README: SendMessage with one user part, {"text":"demo"} or {"data":{"intent":"demo"}}; the four skills are the same four outcomes as POST /v1/execute and the MCP tool xguard_execute.'
+  rest_twin: openapi/xguardgate-com-openapi.json#xguardExecute
+  mcp_twin: mcp/xguardgate-com-mcp.yml (xguard_execute)

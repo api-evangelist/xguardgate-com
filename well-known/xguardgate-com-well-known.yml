@@ -1,0 +1,132 @@
+generated: '2026-09-19'
+method: probed
+source: >-
+  Live GET probes of the named /.well-known/* path list on xguardgate.com, www.xguardgate.com, api.xguardgate.com
+  (the OpenAPI servers[] host, MCP host and A2A host) and reconcile.xguardgate.com, 2026-09-19, plus the
+  additional discovery documents the provider's own manifests name by path (ai-plugin.json, xguard.json, the
+  sitemap and the agent card point at them). Every row below is a request that was actually issued; every
+  status is the one returned without following redirects.
+summary:
+  hosts_probed: 4
+  paths_probed: 62
+  documents_served: 20
+  hit_count: 20
+  path_echo_control: passed
+  note: >-
+    XGuard publishes an unusually dense discovery surface, all of it on api.xguardgate.com with the website
+    host mirroring the core set: RFC 9116 security.txt (Contact, Expires 2027-08-27, two Canonical URLs,
+    Policy, Preferred-Languages en/ar), RFC 9728 oauth-protected-resource for both the API resource and the MCP
+    resource (each stating bearer_methods_supported [] and oauth_supported false - "public and pay-per-request
+    tools do not require an XGuard account or OAuth bearer token"), an OpenAI ai-plugin.json manifest, an A2A
+    agent card at both the 1.0 and legacy paths, an x402 facilitator discovery document (/.well-known/x402),
+    a payment manifest, egress / actions manifests with their signing keys, the ProofRail verification key
+    (ES256 JWK, kid did:web:api.xguardgate.com#xguard-proofrail), an MCP server card (also at
+    /.well-known/xguard-tools.json) and an agent-directory index. What it does NOT publish: OpenID
+    configuration, an OAuth authorization-server document (a deliberate JSON 404 saying "XGuard does not
+    advertise a fictitious OAuth issuer"), an RFC 9727 api-catalog, an APIs.json index, an AAuth resource
+    document, or UCP/ACP manifests. Every miss is the site's real JSON 404 envelope (374 bytes, code not_found)
+    - never an HTML shell - and the negative-control path also 404s on every host, so each 200 is a served
+    document. www.xguardgate.com 308s every path to the apex and serves nothing of its own;
+    reconcile.xguardgate.com serves only its x402 discovery document and a robots.txt.
+hosts:
+- host: xguardgate.com
+  role: Website; mirrors the api host's core discovery documents
+  path_echo_control: passed
+  documents:
+  - {path: /.well-known/security.txt, status: 200, content_type: text/plain, bytes: 276, file: xguardgate-com-security.txt, standard: RFC 9116}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404, note: 'JSON body {"error":"oauth_authorization_server_unconfigured", ...} pointing at the protected-resource document.'}
+  - {path: /.well-known/oauth-protected-resource, status: 200, content_type: application/json, bytes: 420, file: xguardgate-com-oauth-protected-resource.json, standard: RFC 9728, note: 'resource https://api.xguardgate.com; bearer_methods_supported []; no authorization_servers; x-xguard-authentication.oauth_supported false.'}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/api-catalog.json, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 200, content_type: application/json, bytes: 3635, file: xguardgate-com-ai-plugin.json, standard: OpenAI plugin manifest v1, note: 'api.type openapi -> https://api.xguardgate.com/openapi.json; auth service_http (X-XGuard-Key for operators, scoped xgc_ capability for agents).'}
+  - {path: /.well-known/agent-card.json, status: 200, content_type: application/a2a+json, bytes: 3289, file: ../a2a/xguardgate-com-agent-card.json, standard: A2A Agent Card 1.0.0, note: 'Byte-identical to the canonical copy on api.xguardgate.com; graded in a2a/xguardgate-com-a2a.yml.'}
+  - {path: /.well-known/agent.json, status: 200, content_type: application/a2a+json, bytes: 3289, file: ../a2a/xguardgate-com-agent-card.json, standard: A2A Agent Card (legacy path), note: 'Same body as agent-card.json.'}
+  - {path: /.well-known/aauth-resource.json, status: 404}
+  - {path: /.well-known/ucp.json, status: 404}
+  - {path: /.well-known/acp.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /apis.yml, status: 404}
+  - {path: /.well-known/mcp.json, status: 404}
+  - {path: /.well-known/mcp/server-card.json, status: 200, content_type: application/json, bytes: 22555, file: ../mcp/xguardgate-com-mcp-server-card.json, standard: MCP server card, note: 'Named in the sitemap; byte-identical to the api host copy.'}
+  - {path: /server.json, status: 200, content_type: application/json, bytes: 558, standard: MCP Registry server.json (schema 2025-12-11), note: 'Not saved; identical in substance to the repository copy (name io.github.moelayyan90/xguard-control-plane, remotes[0] streamable-http https://api.xguardgate.com/mcp).'}
+  - {path: /llms.txt, status: 200, content_type: text/plain, bytes: 2636, file: ../llms/xguardgate-com-llms.txt}
+  - {path: /agent.txt, status: 200, content_type: text/plain, bytes: 2636, note: 'Same body as llms.txt.'}
+  - {path: /.well-known/xguardgate-com-negative-control-4b9e2c71.json, status: 404, note: 'Negative control: a path that cannot exist returns the same JSON 404 as every miss above.'}
+- host: www.xguardgate.com
+  role: Redirect-only alias
+  path_echo_control: passed
+  documents:
+  - {path: /, status: 308, redirect: 'https://xguardgate.com/'}
+  - {path: /.well-known/security.txt, status: 308, redirect: 'https://xguardgate.com/.well-known/security.txt'}
+  - {path: /.well-known/openid-configuration, status: 308, redirect: 'https://xguardgate.com/.well-known/openid-configuration', note: 'Target 404s.'}
+  - {path: /.well-known/oauth-authorization-server, status: 308, redirect: 'https://xguardgate.com/.well-known/oauth-authorization-server', note: 'Target 404s.'}
+  - {path: /.well-known/oauth-protected-resource, status: 308, redirect: 'https://xguardgate.com/.well-known/oauth-protected-resource'}
+  - {path: /.well-known/api-catalog, status: 308, redirect: 'https://xguardgate.com/.well-known/api-catalog', note: 'Target 404s.'}
+  - {path: /.well-known/ai-plugin.json, status: 308, redirect: 'https://xguardgate.com/.well-known/ai-plugin.json'}
+  - {path: /.well-known/agent-card.json, status: 308, redirect: 'https://xguardgate.com/.well-known/agent-card.json'}
+  - {path: /.well-known/agent.json, status: 308, redirect: 'https://xguardgate.com/.well-known/agent.json'}
+  - {path: /openapi.json, status: 308, redirect: 'https://xguardgate.com/openapi.json'}
+  - {path: /llms.txt, status: 308, redirect: 'https://xguardgate.com/llms.txt'}
+  - {path: /.well-known/xguardgate-com-negative-control-4b9e2c71.json, status: 404, note: 'Followed through to the apex 404 (probed with redirects enabled).'}
+- host: api.xguardgate.com
+  role: API (OpenAPI servers[]), MCP server host and A2A JSON-RPC host - the RFC 9728 resource server
+  path_echo_control: passed
+  documents:
+  - {path: /.well-known/security.txt, status: 200, content_type: text/plain, bytes: 276, file: xguardgate-com-security.txt, standard: RFC 9116, note: 'Byte-identical to the website copy; lists itself as a second Canonical URL.'}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404, note: 'Deliberate: {"error":"oauth_authorization_server_unconfigured","error_description":"XGuard does not advertise a fictitious OAuth issuer. Public and x402 paid tools do not require OAuth."}'}
+  - {path: /.well-known/oauth-protected-resource, status: 200, content_type: application/json, bytes: 420, file: xguardgate-com-oauth-protected-resource.json, standard: RFC 9728}
+  - {path: /.well-known/oauth-protected-resource/mcp, status: 200, content_type: application/json, bytes: 420, file: xguardgate-com-oauth-protected-resource-mcp.json, standard: RFC 9728 (MCP resource), note: 'resource https://api.xguardgate.com/mcp; bearer_methods_supported []; oauth_supported false; paid_tools x402-v2-per-request. This is the document the MCP authorization spec tells a client to fetch; it truthfully says there is no OAuth to do.'}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/api-catalog.json, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 200, content_type: application/json, bytes: 3635, file: xguardgate-com-ai-plugin.json, standard: OpenAI plugin manifest v1}
+  - {path: /.well-known/agent-card.json, status: 200, content_type: application/a2a+json, bytes: 3289, file: ../a2a/xguardgate-com-agent-card.json, standard: A2A Agent Card 1.0.0, note: 'The canonical copy per the provider''s xguard.json.'}
+  - {path: /.well-known/agent.json, status: 200, content_type: application/a2a+json, bytes: 3289, file: ../a2a/xguardgate-com-agent-card.json, standard: A2A Agent Card (legacy path)}
+  - {path: /.well-known/aauth-resource.json, status: 404}
+  - {path: /.well-known/ucp.json, status: 404}
+  - {path: /.well-known/acp.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.yml, status: 404}
+  - {path: /.well-known/mcp.json, status: 404}
+  - {path: /.well-known/mcp/server-card.json, status: 200, content_type: application/json, bytes: 22555, file: ../mcp/xguardgate-com-mcp-server-card.json, standard: MCP server card, note: 'endpoint https://api.xguardgate.com/mcp, transport streamable-http, authentication {required:false, schemes:[]}, 3 tools, 4 capabilities with input/output schemas, resources [] and prompts [].'}
+  - {path: /.well-known/xguard-tools.json, status: 200, content_type: application/json, bytes: 22555, note: 'Same body as the MCP server card; named as tools_manifest in xguard.json and the API root.'}
+  - {path: /.well-known/agent-directory.json, status: 200, content_type: application/json, bytes: 248, file: xguardgate-com-agent-directory.json, note: 'Declared in the OpenAPI; one agent entry linking card, mcp, capabilities, pricing and openapi.'}
+  - {path: /.well-known/payment-manifest, status: 200, content_type: application/json, bytes: 8133, file: xguardgate-com-payment-manifest.json, standard: 'x402 v2 (provider manifest)', note: 'protocol x402, x402_version 2, account_required false, subscription_required false, custody non-custodial-resource-server, USDC 6 decimals, per-resource prices on eip155:8453. Referenced by the agent card extension and the RFC 9728 document.'}
+  - {path: /.well-known/x402, status: 200, content_type: application/json, bytes: 19918, file: xguardgate-com-x402.json, standard: x402 facilitator discovery, note: 'kind facilitator; endpoints supported/verify/settle/health/discovery/route; kinds[] of supported x402 payment kinds (v1 and v2, many EVM networks) aggregated from upstream facilitators.'}
+  - {path: /.well-known/xguard.json, status: 200, content_type: application/json, bytes: 2474, file: xguardgate-com-xguard.json, note: 'Provider identity manifest: canonical site/api/mcp/a2a URLs, MCP Registry name, repository, category, discovery index.'}
+  - {path: /.well-known/xguard-egress.json, status: 200, content_type: application/json, bytes: 2703, file: xguardgate-com-xguard-egress.json, note: 'Secretless Egress manifest: endpoints, idempotency contract, budgets, supported providers, controls.'}
+  - {path: /.well-known/xguard-egress-key.json, status: 200, content_type: application/json, bytes: 536, note: 'Egress proof signing key (JWK). Not saved.'}
+  - {path: /.well-known/xguard-actions.json, status: 200, content_type: application/json, bytes: 1518, file: xguardgate-com-xguard-actions.json, note: 'Action Rail manifest: permit/execute endpoints, controls, protocols, billing boundary.'}
+  - {path: /.well-known/xguard-actions-key.json, status: 200, content_type: application/json, bytes: 285, note: 'Action permit signing key (JWK). Not saved.'}
+  - {path: /.well-known/xguard-proof-key.json, status: 200, content_type: application/json, bytes: 511, file: xguardgate-com-xguard-proof-key.json, standard: 'JWK (RFC 7517), ES256', note: 'kid did:web:api.xguardgate.com#xguard-proofrail; verify_endpoint https://api.xguardgate.com/v1/proofs/verify; the Link rel="verification-key" on every 402 points here.'}
+  - {path: /agent.txt, status: 200, content_type: text/plain, bytes: 2636, note: 'Same body as llms.txt.'}
+  - {path: /llms.txt, status: 200, content_type: text/plain, bytes: 2636, note: 'Same body as the website llms.txt.'}
+  - {path: /.well-known/xguardgate-com-negative-control-4b9e2c71.json, status: 404, note: 'Negative control: JSON 404 envelope, code not_found.'}
+- host: reconcile.xguardgate.com
+  role: Companion Reconcile API (OpenAPI servers[] of the second contract)
+  path_echo_control: passed
+  documents:
+  - {path: /.well-known/security.txt, status: 404, note: '13-byte text/plain "404 Not Found" - a different origin from the main Worker.'}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /.well-known/x402.json, status: 200, content_type: application/json, bytes: 1762, file: xguardgate-com-reconcile-x402.json, standard: x402 discovery (resource server), note: 'x402Version 2; one paid resource /v1/reconcile at 2000 atomic USDC on eip155:8453; facilitator https://facilitator.xpay.sh (fallback mode); bazaar_publish_ready false.'}
+  - {path: /robots.txt, status: 200, content_type: text/plain, bytes: 77}
+  - {path: /.well-known/xguardgate-com-negative-control-4b9e2c71.json, status: 404}
+security_txt:
+  file: xguardgate-com-security.txt
+  fields:
+    Contact: mailto (published by the provider in security.txt, the ai-plugin manifest and the /security page)
+    Canonical: ['https://xguardgate.com/.well-known/security.txt', 'https://api.xguardgate.com/.well-known/security.txt']
+    Preferred-Languages: 'en, ar'
+    Policy: https://github.com/moelayyan90/XGuard/security
+    Expires: '2027-08-27T00:00:00Z'
+  note: 'Not PGP-signed; no Encryption or Acknowledgments field. The Policy URL is the repository''s GitHub Security tab (200), which has no SECURITY.md behind it (raw SECURITY.md and .github/SECURITY.md both 404).'

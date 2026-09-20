@@ -1,23 +1,255 @@
 aid: xguardgate-com
 name: XGuard
-description: 'XGuard is a company surfaced via the API Evangelist harvest backlog (source: a2a-registry)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  XGuard is a paid-tool and credential-brokering gateway for AI agents, operated from xguardgate.com with
+  its API at api.xguardgate.com and its source published at github.com/moelayyan90/XGuard (Apache-2.0,
+  Cloudflare Workers). Its canonical product, "XGuard Universal Paid AI Agent + Secretless Gateway" (v5.1.0),
+  sells four public-source outcomes to any agent with no account or API key: a free HTML extraction preview,
+  multi-page evidence extraction, Schema.org product-offer comparison and a deduplicated RSS/Atom feed digest,
+  each priced per execution in USDC on Base (0.002-0.006 USDC) and settled through the x402 v2 protocol
+  before the sources are touched, with a signed quote, a replay-safe payment identifier, a signed receipt
+  and ES256 "ProofRail" execution evidence. A second surface, Secretless Egress, lets an operator store an
+  upstream API credential (OpenAI, Anthropic, GitHub, Stripe, Slack, Notion, Cloudflare, Gemini or custom)
+  and hand an agent a short-lived scoped capability instead of the secret, with a mandatory Idempotency-Key
+  on every write. The same catalog is exposed as a 49-operation OpenAPI 3.1.0 contract, a remote Streamable
+  HTTP MCP server at api.xguardgate.com/mcp that answers tools/list anonymously, an A2A 1.0.0 agent card at
+  /.well-known/agent-card.json, an OpenAI plugin manifest, llms.txt and a set of x402 payment, egress and
+  action manifests; a companion x402 settlement-reconciliation API runs at reconcile.xguardgate.com.
 url: https://raw.githubusercontent.com/api-evangelist/xguardgate-com/refs/heads/main/apis.yml
+image: https://xguardgate.com/logo.svg
 x-type: company
 x-source: harvest:a2a-registry
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-09-19 (local-v3; was a2a-registry harvest stub)
 specificationVersion: '0.20'
 created: '2026-09-19'
 modified: '2026-09-19'
 tags:
-- Company
-apis: []
+- Agents
+- Agent Commerce
+- x402
+- MCP
+- A2A
+- Micropayments
+- Web Extraction
+- Feed Aggregation
+- Credential Broker
+- API Gateway
+- Agent Security
+- agent-native
+tags_raw:
+- Agents
+- Agent commerce
+- x402
+- MCP
+- A2A
+- Micropayments
+- Web extraction
+- Feed aggregation
+- Credential broker
+- API gateway
+- Agent security
+- Agent-native
+apis:
+- aid: xguardgate-com:xguard-universal-paid-agent-api
+  name: XGuard Universal Paid AI Agent + Secretless Gateway API
+  description: >-
+    The REST surface behind every XGuard product, published as OpenAPI 3.1.0 (info.version 5.1.0, 47 paths,
+    49 operations, servers[] https://api.xguardgate.com) at https://api.xguardgate.com/openapi.json. The
+    Outcomes group is the canonical product: POST /v1/execute (operationId xguardExecute) takes an intent
+    plus up to three public URLs, returns a free result for intent:demo or supplied HTML, and otherwise
+    answers HTTP 402 with a Payment-Required header, a signed five-minute X-XGuard-Quote and an exact USDC
+    price; a funded x402 v2 client signs and retries the identical body, and GET /v1/results/{payment_identifier}
+    recovers a paid outcome with the original quote. The contract also carries the x402 facilitator relay
+    (/supported, /verify, /settle, /discovery/*), the compatible paid xguard.web.fetch tool with a Base
+    Sepolia testnet twin, the Secretless Egress operator and agent endpoints under /v1/egress/*, the Action
+    Rail permit/execute pair under /v1/actions/*, the free ATS-100 transaction-safety test, ProofRail proof
+    verification and health/readiness probes. Only one operation declares an operationId and no
+    securitySchemes are declared; credentials are documented as headers (X-XGuard-Key, Payment-Signature,
+    X-XGuard-Quote, X-XGuard-Credit) and a scoped capability token instead.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Agents
+  - x402
+  - Web Extraction
+  - Feed Aggregation
+  - Credential Broker
+  - Micropayments
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-openapi.json
+  - type: OpenAPI
+    name: XGuard OpenAPI 3.1.0 (provider-hosted)
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Overlay
+    url: overlays/xguardgate-com-openapi-overlay.yaml
+- aid: xguardgate-com:xguard-mcp-server
+  name: XGuard MCP Server
+  description: >-
+    Remote Model Context Protocol server at https://api.xguardgate.com/mcp (Streamable HTTP, protocol version
+    2026-07-28, serverInfo xguard-universal-paid-secretless-gateway 5.1.0). initialize and tools/list answer
+    anonymously with three tools that carry real inputSchemas and annotations: xguard_discover (free catalog
+    and prices), xguard_execute (the paid-outcome chokepoint; a paid call returns an isError tool result with
+    the x402 PaymentRequired challenge in structuredContent and is retried with params._meta["x402/payment"])
+    and xguard_get_result (recover a paid outcome by payment identifier and quote). Registered in the official
+    MCP Registry as io.github.moelayyan90/xguard-control-plane; ready-to-paste Cursor, VS Code, Claude Code and
+    Codex configurations are published at xguardgate.com/install/. No OAuth: RFC 9728 metadata at
+    /.well-known/oauth-protected-resource/mcp states bearer_methods_supported is empty and that paid tools are
+    gated by x402 payment rather than an account.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com/mcp
+  tags:
+  - MCP
+  - agent-native
+  - Agent Commerce
+  properties:
+  - type: MCPServer
+    url: mcp/xguardgate-com-mcp.yml
+  - type: MCPServer
+    name: XGuard MCP endpoint (Streamable HTTP)
+    url: https://api.xguardgate.com/mcp
+  - type: ToolCrosswalk
+    url: mcp/xguardgate-com-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/moelayyan90/XGuard/blob/main/llms-install.md
+- aid: xguardgate-com:xguard-a2a-agent
+  name: XGuard A2A Agent
+  description: >-
+    Agent2Agent surface: an agent card served identically from https://api.xguardgate.com/.well-known/agent-card.json
+    (the canonical location named in the provider's own xguard.json manifest) and from xguardgate.com, at both
+    the A2A 1.0 path and the legacy /.well-known/agent.json path, as application/a2a+json. The card (version
+    5.1.0) declares one JSONRPC interface at https://api.xguardgate.com/a2a with protocolVersion 1.0.0, four
+    skills that mirror the four REST outcomes (extract-preview, web-extraction, product-offers, feed-digest),
+    an x402 v2 paid-execution extension pointing at the payment manifest, and streaming, push notifications and
+    extended card all false. The JSON-RPC endpoint answers a GET with the card itself plus a discovery block, and
+    answers every other JSON-RPC method (tasks/get, agent/getAuthenticatedExtendedCard) with A2A error -32004
+    Unsupported operation naming SendMessage as the only operation it implements.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com/a2a
+  tags:
+  - A2A
+  - agent-native
+  - x402
+  properties:
+  - type: AgentCard
+    url: a2a/xguardgate-com-a2a.yml
+  - type: AgentCard
+    name: A2A Agent Card (provider-hosted, canonical)
+    url: https://api.xguardgate.com/.well-known/agent-card.json
+- aid: xguardgate-com:xguard-reconcile-api
+  name: XGuard Reconcile API
+  description: >-
+    A one-operation companion service at https://reconcile.xguardgate.com that resolves ambiguous x402 Base
+    USDC settlements after a facilitator timeout: GET /v1/reconcile?from=0x...&nonce=0x... checks the EIP-3009
+    authorization state and AuthorizationUsed logs and reports whether the nonce was consumed and, when
+    observable, the settlement transaction hash. Published as OpenAPI 3.1.0 (info.title "XGuard Reconcile",
+    version 1.2.0) with an x-payment-info extension declaring the price ($0.002 USDC, exact scheme, eip155:8453);
+    the same terms appear in the host's /.well-known/x402.json discovery document and llms.txt. Non-custodial;
+    never needs a private key.
+  humanURL: https://reconcile.xguardgate.com/
+  baseURL: https://reconcile.xguardgate.com
+  tags:
+  - x402
+  - Payments
+  - Reconciliation
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-reconcile-openapi.json
+  - type: OpenAPI
+    name: XGuard Reconcile OpenAPI 3.1.0 (provider-hosted)
+    url: https://reconcile.xguardgate.com/openapi.json
+  - type: Overlay
+    url: overlays/xguardgate-com-reconcile-openapi-overlay.yaml
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: VulnerabilityDisclosure
+  url: security/xguardgate-com-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/xguardgate-com-domain-security.yml
 - type: Website
   url: https://xguardgate.com/
+- type: Documentation
+  url: https://xguardgate.com/developers
+- type: GettingStarted
+  url: https://xguardgate.com/connect
+- type: APIReference
+  url: https://api.xguardgate.com/openapi.json
+- type: Playground
+  url: https://xguardgate.com/try
+- type: Pricing
+  url: https://xguardgate.com/pricing
+- type: TermsOfService
+  url: https://xguardgate.com/terms
+- type: PrivacyPolicy
+  url: https://xguardgate.com/privacy
+- type: SecurityPolicy
+  url: https://xguardgate.com/security
+- type: GitHub
+  url: https://github.com/moelayyan90/XGuard
+- type: Releases
+  url: https://github.com/moelayyan90/XGuard/releases
+- type: Support
+  url: https://github.com/moelayyan90/XGuard/issues
+- type: LLMsTxt
+  url: llms/xguardgate-com-llms.txt
+- type: LLMsTxt
+  name: llms.txt (provider-hosted)
+  url: https://xguardgate.com/llms.txt
+- type: WellKnown
+  url: well-known/xguardgate-com-well-known.yml
+- type: SecurityTxt
+  url: well-known/xguardgate-com-security.txt
+- type: AgentCard
+  url: a2a/xguardgate-com-a2a.yml
+- type: MCPServer
+  url: mcp/xguardgate-com-mcp.yml
+- type: Authentication
+  url: authentication/xguardgate-com-authentication.yml
+- type: Conventions
+  url: conventions/xguardgate-com-conventions.yml
+- type: Idempotency
+  url: conventions/xguardgate-com-conventions.yml
+- type: ErrorCatalog
+  url: errors/xguardgate-com-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/xguardgate-com-lifecycle.yml
+- type: Conformance
+  url: conformance/xguardgate-com-conformance.yml
+- type: Plans
+  url: plans/xguardgate-com-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/xguardgate-com-rate-limits.yml
+- type: ChangeLog
+  url: changelog/xguardgate-com-changelog.yml
+- type: Packages
+  url: packages/xguardgate-com-packages.yml
+- type: SDKs
+  url: packages/xguardgate-com-packages.yml
+- type: Sandbox
+  url: sandbox/xguardgate-com-sandbox.yml
+- type: DataModel
+  url: data-model/xguardgate-com-data-model.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Security
+  url: security/xguardgate-com-vulnerability-disclosure.yml
+- type: AgenticAccess
+  url: agentic-access/xguardgate-com-agentic-access.yml
+x-enrichment:
+  date: '2026-09-19'
+  status: enriched
+  artifacts_added: 43
+  pass: local-v3

@@ -1,0 +1,74 @@
+generated: '2026-09-19'
+method: derived
+source: >-
+  Derived by aligning the live MCP tools/list (mcp/xguardgate-com-mcp-tools.json, 3 tools, fetched anonymously
+  2026-09-19) with the provider's OpenAPI 3.1.0 (openapi/xguardgate-com-openapi.json, 49 operations). The
+  provider states the binding itself: the server card's execution_chokepoint names xguard_execute ->
+  https://api.xguardgate.com/v1/execute, each capability page says "OpenAPI: xguardExecute · MCP: xguard_execute
+  · A2A skill: <id>", and the llms.txt Recovery section maps xguard_get_result to GET /v1/results/{payment_identifier}.
+purpose: >-
+  Bind each MCP tool to the REST operation that backs it so the tool inherits a real request contract. Only ONE
+  operation in the published OpenAPI carries an operationId (xguardExecute); the other 48 are addressed here by
+  method + path, which is a contract-quality gap on the provider's side, not a mapping uncertainty.
+surfaces:
+  rest_openapi: openapi/xguardgate-com-openapi.json          # 49 operations, servers[] https://api.xguardgate.com; 1 operationId
+  mcp: https://api.xguardgate.com/mcp                        # tools/list NOT gated; 3 tools with inputSchema
+  a2a: https://api.xguardgate.com/a2a                        # 4 skills = the 4 capabilities behind xguard_execute
+  graphql: null
+crosswalk:
+- tool: xguard_discover
+  category: discovery
+  rest: ['GET /v1/capabilities', 'GET /v1/pricing']
+  binding: rest
+  confidence: high
+  note: Both operations are tagged Outcomes in the spec and neither declares an operationId; the tool's description ("outcomes, prices and examples") is the union of the two responses. Free.
+- tool: xguard_execute
+  category: execution
+  rest: [xguardExecute]
+  binding: rest
+  confidence: high
+  note: >-
+    POST /v1/execute. The tool's inputSchema (intent, capability, url, urls, sources, action, desired_action,
+    html, limit, max_age_seconds, query, testnet) is a subset of the operation's requestBody schema, which
+    additionally accepts the tool-call wrapper fields input, arguments, name, tool, tool_id, toolId, function and
+    type. The four capabilities selectable through it (extract-preview, web-extraction, product-offers,
+    feed-digest) are the four A2A skills.
+- tool: xguard_get_result
+  category: recovery
+  rest: ['GET /v1/results/{payment_identifier}']
+  binding: rest
+  confidence: high
+  note: The operation requires header X-XGuard-Quote; the tool takes the same quote as an argument. Read-only; never re-executes or re-charges.
+mcp_only: []
+rest_only:
+- capability: x402 facilitator relay
+  operations: ['GET /supported', 'POST /verify', 'POST /settle', 'GET /facilitator', 'GET /discovery/resources', 'GET /discovery/search', 'GET /v1/facilitator/route', 'GET /v1/receipts/{receipt_id}']
+- capability: compatible paid web fetch (legacy xguard.web.fetch path)
+  operations: ['GET /v1/preflight', 'POST /v1/preflight', 'POST /v1/pricing/quote', 'POST /v1/tools/web.fetch', 'POST /v1/tools/web.fetch/testnet', 'GET /v1/operations/{payment_identifier}']
+- capability: Secretless Egress (operator + agent)
+  operations: ['GET /v1/egress', 'POST /v1/egress/credentials', 'GET /v1/egress/credentials', 'POST /v1/egress/capabilities', 'DELETE /v1/egress/capabilities/{id}', 'POST /v1/egress/fetch', 'GET /v1/egress/pricing']
+- capability: Action Rail
+  operations: ['GET /v1/actions', 'POST /v1/actions/permits', 'POST /v1/actions/execute', 'GET /v1/actions/pricing', 'GET /v1/actions/stats']
+- capability: Universal Edge proxy
+  operations: ['POST /edge/{merchant-host}/{path}']
+- capability: Agent Transaction Safety (ATS-100) and inspection
+  operations: ['POST /v1/inspect', 'POST /v1/test', 'GET /v1/test/schema']
+- capability: ProofRail
+  operations: ['GET /v1/proof', 'POST /v1/proofs/verify']
+- capability: health, readiness, metrics, protocol discovery
+  operations: ['GET /healthz', 'GET /v1/health', 'GET /v1/ready', 'GET /v1/payment/readiness', 'GET /v1/metrics', 'GET /v1/protocols', 'GET /v1/capabilities/{id}']
+- capability: discovery aliases and OAuth resource metadata
+  operations: ['GET /agent-card.json', 'GET /openapi.yaml', 'GET /pricing', 'GET /.well-known/agent-directory.json', 'GET /.well-known/oauth-protected-resource', 'GET /.well-known/oauth-protected-resource/mcp']
+coverage:
+  mcp_tools: 3
+  mcp_tools_bound: 3
+  mcp_only: 0
+  rest_operations: 49
+  rest_operations_with_tool: 4
+  rest_operations_with_operationId: 1
+  note: >-
+    The MCP server intentionally exposes only the public paid-outcome path. The llms-install.md compatibility
+    list names further tool ids (xguard.capabilities, xguard.preflight, xguard.pricing.quote, xguard.web.fetch,
+    xguard_secretless_egress, xguard_egress_fetch, xguard_proofrail, xguard_verify_proof, xguard_action_rail,
+    xguard_facilitator, xguard_route) that did not appear in the live tools/list on 2026-09-19; the provider
+    says the live list is authoritative, so they are recorded as rest_only capabilities rather than tools.

@@ -1,0 +1,177 @@
+generated: '2026-09-19'
+method: searched
+source: https://github.com/moelayyan90/XGuard/blob/main/docs/public-gateway-contract.md
+derived_from: openapi/xguardgate-com-openapi.json
+probed: true
+docs:
+- https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+- https://github.com/moelayyan90/XGuard/blob/main/README.md
+- https://api.xguardgate.com/.well-known/xguard-egress.json
+- https://xguardgate.com/refund-policy
+- https://xguardgate.com/pricing
+base_url: https://api.xguardgate.com
+api_style: REST over HTTPS with JSON bodies; one intent-shaped POST for the product, plus JSON-RPC 2.0 twins on /mcp and /a2a
+media_type: application/json (errors too; 402 challenges also travel base64url in the Payment-Required header)
+auth:
+  style: >-
+    No accounts on the public path. Discovery, the free preview and price quotes are anonymous. A paid outcome is
+    authorised by PAYMENT: the first request returns 402 with a signed quote (X-XGuard-Quote) and an x402 v2
+    Payment-Required challenge; the retry carries Payment-Signature. Operator management endpoints
+    (/v1/egress/credentials, /v1/egress/capabilities, /v1/actions/permits) take an X-XGuard-Key header; an
+    agent executing a delegated action presents a short-lived scoped capability (xgc_...) in the request body,
+    never the upstream secret. Recovery of a paid result uses the original quote as a bearer credential. The
+    OpenAPI declares NO securitySchemes; all of this is documented as header parameters and prose.
+  detail: authentication/xguardgate-com-authentication.yml
+idempotency:
+  supported: true
+  coverage: partial
+  mechanism: Two mechanisms - an Idempotency-Key header (or idempotency_key body field) on delegated egress writes, and a durable payment identifier + signed quote on paid outcomes; Action Rail permits are single-use and inject an Idempotency-Key automatically.
+  header: Idempotency-Key
+  scope:
+  - 'POST /v1/egress/fetch - Idempotency-Key REQUIRED for POST/PUT/PATCH/DELETE upstream methods (400 before billing without it); GET/HEAD need an explicit key to gain replay protection'
+  - 'POST /v1/execute (xguardExecute) - replay by payment identifier + original X-XGuard-Quote: "Identical paid retries return stored results" (public-gateway-contract.md); an unsigned first call is itself idempotent because it only quotes'
+  - 'POST /v1/tools/web.fetch and /testnet - same payment-identifier replay; 409 "Replay or idempotency conflict"'
+  - 'POST /v1/actions/execute - single-use signed permit bound to the exact request; "automatic Idempotency-Key injection"; 409 "Replay, state or binding conflict"'
+  - 'POST /settle - durable settlement receipts act as the replay guard'
+  not_covered:
+  - 'POST /v1/egress/credentials and POST /v1/egress/capabilities (resource creation) - no idempotency key documented'
+  - 'POST /edge/{merchant-host}/{path} - billing is "only successful transaction calls" but no replay key is documented for the proxied request itself'
+  key_format: '8-128 ASCII letters, digits, underscores, colons, periods or hyphens (docs/secretless-outcomes.md); a stable BUSINESS key, e.g. support-case-123-v1'
+  retention: 'Egress: replay while the capability is valid (30-3600 s lifetime); encrypted results deleted 24 hours after capability expiry. Paid outcomes: read-only recovery accepts the original quote after its execution expiry.'
+  conflict_behavior: >-
+    Same key + identical request -> stored status, body and proof with X-XGuard-Replay: true, no new charge or
+    upstream request. Same key + changed URL/query/method/headers/body -> 409 idempotency_request_conflict.
+    Concurrent duplicate -> 409 execution_in_progress (poll with the same key). Reserved attempt with unknown
+    outcome -> 409 execution_outcome_unknown, never re-executed automatically. The provider's explicit rule:
+    "Never generate a new key automatically to escape an ambiguous outcome."
+  guarantee: 'At most one XGuard upstream attempt per capability and key - "not a universal distributed exactly-once guarantee"; if the upstream acted but its response was lost, XGuard cannot prove completion.'
+  docs: https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+dry_run_mode:
+  supported: true
+  status: verified
+  surfaces:
+  - operation: xguardExecute with {"intent":"demo"} or a supplied html field
+    cost: free, anonymous
+    description: Runs the real parser on labelled sample HTML or the caller's HTML with zero outbound calls (result.network_calls 0, data_mode labelled_sample). Probed 2026-09-19, HTTP 200.
+  - operation: 'POST /v1/pricing/quote'
+    cost: free
+    description: Returns the exact signed price and next.body / next.execution_url for any outcome without paying. Probed 2026-09-19, HTTP 200.
+  - operation: xguardExecute without Payment-Signature
+    cost: free
+    description: 'An unsigned paid request "only returns a price; it does not fetch sources or settle payment" - the 402 itself is the dry run (target_contacted false). Probed 2026-09-19, HTTP 402.'
+  - operation: 'POST /v1/preflight'
+    cost: free, read-only
+    description: Validates target, SSRF policy, public DNS and payment readiness; the target is not contacted.
+  - operation: 'POST /v1/test'
+    cost: free
+    description: ATS-100 safety scoring of a sample transaction; the target is not contacted.
+  detail: sandbox/xguardgate-com-sandbox.yml
+reversibility:
+  grade: documented
+  docs: https://xguardgate.com/refund-policy
+  note: >-
+    Reversal paths exist for every write class and are documented, but no reversal WINDOW is stated for any of
+    them, so the grade is documented (0.4), not verified. A settled paid outcome cannot be un-executed; what the
+    provider offers is a signed execution credit when all sources fail, an explicit "not an automatic cash
+    refund", a revoke operation for delegated capabilities, and a credits-based refund policy for operator
+    purchases whose timing is "subject to the checkout provider". Nothing below asserts a window the provider
+    has not written down.
+  write_surfaces:
+  - operation: xguardExecute (paid outcome, x402)
+    action: Settle USDC and fetch public sources
+    reversal: execution credit on total source failure; no refund otherwise
+    reversal_operation: 'retry xguardExecute with X-XGuard-Credit + the original X-XGuard-Quote'
+    window: null
+    stated_terms:
+    - source: https://xguardgate.com/pricing
+      verbatim: 'If all sources fail after settlement, the response provides an execution credit for the same outcome. This is not an automatic cash refund. Keep the original recovery data.'
+    - source: https://github.com/moelayyan90/XGuard/blob/main/README.md
+      verbatim: 'Retry with X-XGuard-Credit and the signed quote; no second payment is required. Credit fulfillment is stored and recoverable using the original quote. A credit is not an automatic cash refund.'
+  - operation: 'POST /v1/egress/capabilities (issue a scoped capability)'
+    action: Grant an agent time-boxed delegated access to an operator credential
+    reversal: revoke
+    reversal_operation: 'DELETE /v1/egress/capabilities/{id} with X-XGuard-Key'
+    window: null
+    stated_terms:
+    - source: openapi/xguardgate-com-openapi.json
+      verbatim: 'Revoke a capability; already dispatched work may finish'
+    - source: https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+      verbatim: 'Revoked or expired capability: Stored-result access and new attempts are denied; already authorized in-flight work may finish'
+    note: Capabilities also expire on their own (ttl_seconds 30-3600), which bounds exposure but is a lifetime, not a reversal window.
+  - operation: 'POST /v1/egress/fetch (delegated upstream write)'
+    action: Perform one credential-backed upstream call, billed in Usage Credits
+    reversal: none at XGuard; the upstream vendor's own semantics apply
+    reversal_operation: null
+    window: null
+    stated_terms:
+    - source: https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+      verbatim: 'Transport timeout, blocked reflected secret, or oversized response after billing: Stored ambiguous result; no automatic reexecution or cash refund'
+    - source: https://api.xguardgate.com/v1/egress/pricing
+      verbatim: 'upstream_failure_after_billing: the egress attempt remains billed; XGuard never auto-replays an ambiguous attempt'
+  - operation: Operator Usage Credits purchase (Lemon Squeezy checkout, not an API operation)
+    action: Buy 5,000 credits (JOD 3.550)
+    reversal: provider-confirmed refund reconciled against credits
+    reversal_operation: 'email support with the order identifier'
+    window: null
+    stated_terms:
+    - source: https://xguardgate.com/refund-policy
+      verbatim: 'A provider-confirmed refund removes the proportional Usage Credits from the associated order. If those credits were already consumed, the account records refund debt and becomes restricted rather than silently creating a negative or inconsistent balance.'
+    - source: https://xguardgate.com/refund-policy
+      verbatim: 'Eligibility and payment return timing are subject to the checkout provider and applicable requirements.'
+  - operation: 'POST /v1/actions/permits -> POST /v1/actions/execute'
+    action: Execute a mandate-bound external action
+    reversal: permits expire and can be revoked ("expiry and revocation" in the controls list); the executed action itself is not reversed by XGuard
+    reversal_operation: null
+    window: null
+    stated_terms:
+    - source: https://api.xguardgate.com/.well-known/xguard-actions.json
+      verbatim: 'controls: ... "single-use execution", "replay rejection", "expiry and revocation", "fail-closed ambiguous state", "durable execution receipt"'
+    note: No revoke endpoint for permits appears in the OpenAPI; the manifest names the control but not the operation.
+pagination:
+  style: none
+  note: 'No list endpoint is paginated. The only sizing controls are per-outcome bounds: limit 1-30 entries for feed-digest, urls/sources <= 3, html <= 12,288 characters, max_age_seconds 0-60.'
+field_expansion:
+  supported: false
+metadata:
+  supported: false
+  note: No client metadata field on requests; the intent itself is free text or a structured object.
+request_tracing:
+  header: x-xguard-request-id
+  body_field: request_id
+  format: 'xgr_<32 hex>'
+  note: Present on every response observed (200, 402, 404, 422); the body and header share the id. Requests may send x-request-id (allowed by CORS) but no correlation behaviour is documented.
+  other_response_headers: [x-xguard-version, x-xguard-control-plane, x-xguard-worker-version-id, x-xguard-worker-version-tag, x-xguard-canonical-api, x-xguard-canonical-mcp, x-xguard-canonical-site, x-xguard-canonical-name, x-xguard-primary-product]
+  payment_headers: [payment-required, payment-response, x-xguard-quote, x-xguard-payment-identifier, x-xguard-payment-environment, x-xguard-payment-rail, x-xguard-replay, x-xguard-proof, x-xguard-receipt, x-xguard-credit, x-xguard-execution-id]
+versioning:
+  scheme: '/v1 path prefix plus product version 5.1.0 in x-xguard-version'
+  detail: lifecycle/xguardgate-com-lifecycle.yml
+error_envelope:
+  shape: '{ok:false, error:{code, message, retryable, docs, field?, required_fields?, example?}, error_code, request_id, next:{method, path, action, payment_required}, repair?:{missing[], suggested_request}}'
+  rfc9457: false
+  detail: errors/xguardgate-com-problem-types.yml
+payment_flow:
+  protocol: x402 v2
+  steps:
+  - 'POST the request without payment; receive 402 + Payment-Required + X-XGuard-Quote (five-minute ES256 quote bound to the input digest, price, asset, network, recipient and payment identifier)'
+  - 'Sign Payment-Required with an x402 v2 client (Base USDC EIP-3009 authorization)'
+  - 'Retry the IDENTICAL body with Payment-Signature and the preserved X-XGuard-Quote; "settlement_before_execution" - XGuard verifies and settles, then fetches'
+  - 'Read Payment-Response, x-xguard-receipt and x-xguard-proof; keep the payment identifier + quote as the recovery credential for GET /v1/results/{payment_identifier}'
+  rule: 'Never sign a second payment to resolve an uncertain response - recover with getResult instead (SDK README; the SDK enforces a default budget of zero).'
+rate_limit_signaling:
+  status_code: 429
+  headers: none documented or observed
+  detail: rate-limits/xguardgate-com-rate-limits.yml
+input_bounds:
+  request_body: 1 MiB (edge and egress)
+  html_preview: 12,288 characters
+  urls_or_sources: 3 (plus 1 fallback per source)
+  feed_limit: 1-30
+  upstream_result_buffer: 48 KiB
+  response_headers: 8 KiB
+  upstream_timeout: 30 s
+  quote_lifetime: 300 s
+  capability_lifetime: 30-3600 s
+cors:
+  allow_origin: '*'
+  allow_methods: 'GET, HEAD, POST, OPTIONS'
+  note: Browser clients may call the free and paid paths directly; payment and quote headers are exposed.

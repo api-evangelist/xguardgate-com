@@ -1,0 +1,63 @@
+generated: '2026-09-19'
+method: searched
+source: https://xguardgate.com/try
+docs:
+- https://xguardgate.com/developers
+- https://api.xguardgate.com/v1/capabilities
+- https://github.com/moelayyan90/XGuard/blob/main/README.md
+probed:
+- {method: POST, url: 'https://api.xguardgate.com/v1/execute', body: '{"intent":"demo"}', status: 200, fetched: '2026-09-19', note: 'Free path exercised: result.data_mode "labelled_sample", network_calls 0, cost.amount "0.000000" USDC, receipt null, verification.signed false.'}
+- {method: POST, url: 'https://api.xguardgate.com/v1/pricing/quote', body: '{"tool_id":"feed-digest"}', status: 200, fetched: '2026-09-19', note: 'Free signed quote (ES256 JWS) for the smallest paid outcome; nothing was paid.'}
+- {method: POST, url: 'https://api.xguardgate.com/v1/execute', body: '{"intent":"Get a technology news digest","limit":3}', status: 402, fetched: '2026-09-19', note: 'Paid twin of the free path; target_contacted false. Confirms the 402 challenge without settlement.'}
+summary: >-
+  XGuard has no test-mode API keys and no separate sandbox host: production is the sandbox, and the provider
+  designs the free path to be the rehearsal. Four free, unauthenticated surfaces exist: (1) intent:demo or
+  supplied HTML on POST /v1/execute runs the real extraction parser on labelled sample data with zero outbound
+  calls; (2) POST /v1/pricing/quote returns the exact signed price for any outcome without paying; (3) GET/POST
+  /v1/preflight validates a target and payment readiness without contacting it; (4) POST /v1/test scores a
+  sample agent transaction against ATS-100 without contacting the target. For payment-flow rehearsal there is a
+  Base Sepolia testnet twin (network eip155:84532) selectable with testnet:true and, for the compatible web.fetch
+  tool, a dedicated /v1/tools/web.fetch/testnet route; "test settlement never counts as revenue". No test card
+  numbers, test wallets or hosted test tokens are published - a testnet purchase needs the caller's own funded
+  Base Sepolia wallet.
+test_vs_live:
+  separate_environment: false
+  key_prefixes:
+    note: No test/live key pair. The only published prefixes are identifiers, not credentials - xgr_ (request id), xgq_ (quote id), pay_ (payment identifier), xgc_ (scoped egress capability).
+  networks:
+    live: eip155:8453 (Base mainnet), USDC 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+    test: eip155:84532 (Base Sepolia), selected with the testnet:true request field or the /testnet route; the quote must match the requested network
+free_paths:
+- name: Free extraction preview (intent:demo / supplied html)
+  operation: xguardExecute
+  request: '{"intent":"demo"}  or  {"intent":"Extract this page","html":"<html>...up to 12,288 chars...</html>"}'
+  cost: 0 USDC; no account, key or wallet
+  behaviour: Runs the same parsers as the paid outcomes on labelled sample HTML or the caller's HTML; makes no outbound request; the response says data_mode "labelled_sample" and carries a notice that no merchant was contacted.
+  web_ui: https://xguardgate.com/try (paste up to 12 KiB of public HTML)
+- name: Signed price quote
+  operation: 'POST /v1/pricing/quote'
+  request: '{"tool_id":"feed-digest"}  (also capability:, tool:, name: or MCP-style arguments)'
+  cost: free
+  behaviour: Returns a five-minute ES256 quote bound to the input digest plus next.body / next.execution_url; optional - a first unsigned call to /v1/execute produces the same quote inside the 402.
+- name: Guarded-request preflight
+  operation: 'GET /v1/preflight (schema) and POST /v1/preflight'
+  cost: free, read-only
+  behaviour: Validates the normalized public HTTPS target, SSRF policy, trusted public DNS and payment readiness; the target is not contacted.
+- name: Agent Transaction Safety Test (ATS-100)
+  operation: 'POST /v1/test  (schema at GET /v1/test/schema)'
+  cost: free
+  behaviour: Scores a supplied {target, method, headers, body} sample 0-100 on protocol identification, idempotency, context binding, replay uniqueness, freshness and traceability; grades A-F; the target is not contacted. Also offered as a GitHub Action (action.yml) and a web form at https://xguardgate.com/test.
+testnet:
+- name: Base Sepolia paid outcome
+  operation: 'xguardExecute with "testnet": true (network enum also accepts base-sepolia / eip155:84532)'
+  requirement: caller-owned wallet funded with Base Sepolia USDC and an x402 v2 client
+- name: Base Sepolia web.fetch
+  operation: 'POST /v1/tools/web.fetch/testnet'
+  behaviour: Same one-call x402 flow as mainnet; a first request without a quote returns a signed testnet quote and Payment-Required.
+paid_rehearsal:
+  official_example: 'node sdk/examples/outcome-buy.mjs --pay --max-amount-atomic 2000 --request ''{"intent":"Get a technology news digest","limit":10}''  (from https://xguardgate.com/developers; Node.js 20+, @x402/core@2.24.0 @x402/evm@2.24.0 viem@2.37.6, XGUARD_PAYER_PRIVATE_KEY in the local environment)'
+  budget_cap: The SDK refuses payments outside an explicit maxAmountAtomic budget (default 0) and never signs a second payment to resolve an uncertain response.
+fixtures:
+  sample_document: 'The demo returns a fixed "Sample field notebook" document with one labelled sample offer (gtin:00123456789012, 12.50 USD, url https://example.com/sample) - explicitly "Demonstration data, not a live offer".'
+  example_urls_in_card: ['https://example.com/', 'https://www.iana.org/help/example-domains', 'https://www.adafruit.com/product/50']
+time_simulation: none

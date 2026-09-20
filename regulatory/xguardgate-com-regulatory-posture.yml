@@ -1,0 +1,37 @@
+generated: '2026-09-19'
+method: probed
+probe: true
+source: https://xguardgate.com/privacy
+signals: {}
+probed:
+- {url: 'https://xguardgate.com/privacy', status: 200, fetched: '2026-09-19', note: 'Four sentences. Names what is stored (hashed operator key, encrypted credential material, capability state, billing identifiers, balances, ledger) and that "Payment details are collected by Lemon Squeezy, not by XGuard." No access/correction/deletion process, no contact for privacy requests, no retention schedule, no residency statement.'}
+- {url: 'https://xguardgate.com/terms', status: 200, fetched: '2026-09-19', note: 'Operational terms only; states they "require owner/legal review before material expansion of paid availability."'}
+- {url: 'https://xguardgate.com/security', status: 200, fetched: '2026-09-19', note: 'Security boundary statement and a report-to email; no certifications, no SBOM, no incident-notification commitment.'}
+- {url: 'https://xguardgate.com/refund-policy', status: 200, fetched: '2026-09-19'}
+- {url: 'https://xguardgate.com/.well-known/security.txt', status: 200, fetched: '2026-09-19', note: 'Contact, Policy (GitHub Security tab, which has no SECURITY.md), Expires. No disclosure-timeline or safe-harbour text.'}
+- {url: 'https://xguardgate.com/accessibility', status: 404}
+- {url: 'https://xguardgate.com/accessibility/vpat', status: 404}
+- {url: 'https://xguardgate.com/legal/subprocessors', status: 404}
+- {url: 'https://xguardgate.com/legal/dpa', status: 404}
+- {url: 'https://xguardgate.com/privacy/requests', status: 404}
+- {url: 'https://xguardgate.com/transparency', status: 404}
+- {url: 'https://xguardgate.com/security/sbom', status: 404}
+- {url: 'https://xguardgate.com/docs/data-residency', status: 404}
+- {url: 'https://xguardgate.com/ai/transparency', status: 404}
+- {url: 'https://xguardgate.com/legal/report-content', status: 404}
+- {url: 'https://github.com/moelayyan90/XGuard (community profile)', status: 200, note: 'security: null, code_of_conduct: null, contributing: null; LICENSE Apache-2.0.'}
+notes:
+- >-
+  No signal reaches the substance bar. The privacy page names one third-party processor (Lemon Squeezy, for
+  card payments) in a sentence, which is not a dated subprocessor table, so it is not recorded as
+  subprocessors; it names no data-subject request channel or SLA, so data_subject_request is absent; the
+  README and manifests say the service includes "no general AI model", which is a scope statement, not an AI
+  transparency disclosure; no accessibility statement, SBOM, support-lifetime, residency, incident-notification,
+  age-assurance, notice-and-action, transparency-report or exit-assistance page exists on the site or in the
+  repository (207 files scanned by name).
+- >-
+  What the provider does publish in this neighbourhood is technical rather than regulatory: encrypted-at-rest
+  credential custody with per-record AES-GCM keys wrapped by an RSA-OAEP authority (security page and egress
+  manifest), a retention statement for egress replay records (deleted 24 hours after capability expiry, in
+  docs/secretless-outcomes.md), and a "custody: none" posture for payments. These belong to
+  security/ and lifecycle/ and are recorded there.

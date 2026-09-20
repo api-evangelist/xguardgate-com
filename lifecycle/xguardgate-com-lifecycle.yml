@@ -1,0 +1,63 @@
+generated: '2026-09-19'
+method: searched
+source: https://api.xguardgate.com/openapi.json
+derived_from: openapi/xguardgate-com-openapi.json
+docs:
+- https://github.com/moelayyan90/XGuard/blob/main/CANONICAL_IDENTITY.md
+- https://github.com/moelayyan90/XGuard/releases
+- https://xguardgate.com/capabilities/web-extraction
+versioning:
+  scheme: URI path version (/v1) plus a semantic product version carried in the document and in response headers
+  current_version: 5.1.0 (OpenAPI info.version, MCP serverInfo.version, agent card version, x-xguard-version and x-xguard-control-plane response headers, CANONICAL_IDENTITY.md)
+  path_version: v1 (all product routes; the facilitator relay routes /supported, /verify, /settle and /discovery/* are unversioned by x402 convention)
+  headers_observed: [x-xguard-version, x-xguard-control-plane, x-xguard-worker-version-id, x-xguard-worker-version-tag]
+  spec_url: https://api.xguardgate.com/openapi.json
+  base_url: https://api.xguardgate.com
+  policy_published: false
+  note: >-
+    Every surface agrees on 5.1.0 on 2026-09-19 except the repository's MCP Registry server.json, which says
+    5.1.1. The release tag series on GitHub is per component (xguard-x402-sdk-v5.1.0, xguard-payment-layer-v0.2.1,
+    xguard-task-recovery-v0.3.0, email-shield-v3.0.0, xguard-packages-v0.1.0-alpha.*), and the companion
+    Reconcile API is independently versioned at 1.2.0. No versioning or backward-compatibility policy is published;
+    the x-xguard-worker-version-tag header (git-2a546589e186) exposes the deployed commit.
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  deprecated_operations: []
+  documented_legacy_surfaces:
+  - what: Explicit x402 paid tools (xguard.web.fetch, xguard.preflight, xguard.pricing.quote and the MCP tool ids listed in llms-install.md)
+    status: retained as "documented compatibility routes"; not exposed in the live MCP tools/list
+    evidence: 'llms.txt / initialize instructions: "Legacy x402-paid tools and reusable upstream API credentials remain available through the documented compatibility routes." llms-install.md: "Legacy explicit tools below are compatibility references, not the default catalog."'
+  - what: Action Rail and the standalone facilitator relay
+    status: secondary surfaces
+    evidence: '/docs compatibility_notice: "Action Rail and the standalone facilitator relay are secondary surfaces; x402 paid execution and Secretless Egress are the canonical product."'
+  - what: Older price quotes
+    status: honoured on their original terms
+    evidence: 'README: "New quotes explicitly declare extra.paymentFlow: upfront; outstanding older quotes retain their original terms."'
+  note: No operation in the OpenAPI is marked deprecated and no retirement date is published for any legacy route.
+sla:
+  published: false
+  uptime_target: null
+  verbatim: 'Latency: measured figures are not yet available; source timeouts are bounded. No SLA.'
+  source: https://xguardgate.com/capabilities/web-extraction
+status_page: null
+status_page_note: >-
+  No human status page (/status on xguardgate.com returns the JSON 404). Machine health is published instead:
+  GET /healthz (control-plane and upstream facilitator health with per-upstream latency), GET /v1/health
+  (liveness), GET /v1/ready (dependency readiness, 503 when a dependency is down), GET /v1/payment/readiness and
+  GET /v1/metrics. No StatusPage pointer is emitted.
+health_endpoints:
+- {url: 'https://api.xguardgate.com/healthz', status: 200, fetched: '2026-09-19', note: 'status ok, version 5.1.0, four upstream facilitators reported healthy with latency_ms'}
+- {url: 'https://api.xguardgate.com/v1/health', declared: 'Liveness probe'}
+- {url: 'https://api.xguardgate.com/v1/ready', declared: 'Dependency readiness probe; 503 Dependency unavailable'}
+changelog: changelog/xguardgate-com-changelog.yml
+releases: https://github.com/moelayyan90/XGuard/releases
+support:
+  channel: https://github.com/moelayyan90/XGuard/issues
+  security: https://xguardgate.com/.well-known/security.txt
+data_retention:
+  - {what: 'Secretless Egress encrypted replay results', retention: 'deleted 24 hours after the capability expires (capability lifetime 30-3600 s)', source: 'docs/secretless-outcomes.md'}
+  - {what: 'Paid outcome recovery', retention: 'read-only recovery continues to accept the original quote after its execution expiry', source: 'README.md'}
+  - {what: 'Signed price quote', retention: '300 seconds (quote_expires_seconds in /v1/pricing)', source: 'https://api.xguardgate.com/v1/pricing'}

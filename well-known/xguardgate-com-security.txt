@@ -1,0 +1,6 @@
+Contact: mailto:mo.elayyan2023@gmail.com
+Canonical: https://xguardgate.com/.well-known/security.txt
+Canonical: https://api.xguardgate.com/.well-known/security.txt
+Preferred-Languages: en, ar
+Policy: https://github.com/moelayyan90/XGuard/security
+Expires: 2027-08-27T00:00:00Z

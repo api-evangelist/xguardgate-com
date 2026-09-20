@@ -1,0 +1,170 @@
+generated: '2026-09-19'
+method: searched
+source: https://api.xguardgate.com/openapi.json
+derived_from: openapi/xguardgate-com-openapi.json
+probed: true
+docs:
+- https://api.xguardgate.com/v1/protocols
+- https://api.xguardgate.com/.well-known/payment-manifest
+- https://github.com/moelayyan90/XGuard/blob/main/docs/public-gateway-contract.md
+summary: >-
+  XGuard's conformance profile is the agent-commerce protocol stack, declared IN THE CONTRACT rather than on a
+  marketing page: x402 v2 (the domain standard for agent micropayments) is asserted by an x-payment-info
+  extension on the one canonical operation, by x-xguard-payment-flow blocks on the compatible fetch tool, by a
+  live HTTP 402 carrying a Payment-Required header with accepts[] {scheme exact, network eip155:8453, USDC
+  asset, payTo} and by a payment manifest; the company is also itself an x402 facilitator (/supported, /verify,
+  /settle). Around it sit MCP at protocol version 2026-07-28, an A2A 1.0.0 agent card, JSON-RPC 2.0 on both,
+  CAIP-2 chain identifiers, EIP-3009 authorization binding for USDC, RFC 9116 security.txt, RFC 9728
+  protected-resource metadata (served, and truthfully declaring no OAuth), ES256 JWS quotes and proofs keyed by
+  did:web, OpenAPI 3.1.0 and JSON Schema 2020-12. It declares NO OAuth 2.0 / OIDC (by design - payment replaces
+  accounts), no RFC 9457 problem details, no RFC 9727 api-catalog, no APIs.json and no RFC 8594 sunset
+  signalling. Claims to "recognize" MPP, AP2, UCP, ACP and TAP appear on /v1/protocols and /docs and could not
+  be verified against any published test vector, so they are recorded as claimed, not conformant.
+standards:
+- id: x402
+  name: x402 HTTP payment protocol
+  version: '2'
+  conforms: true
+  domain_standard_signature: true
+  evidence: >-
+    openapi/xguardgate-com-openapi.json POST /v1/execute (xguardExecute) declares x-payment-info {protocols:[{x402:{}}],
+    price:{mode:dynamic, currency:USD, min:"0", max:"0.006000"}} and a 402 response with headers Payment-Required and
+    X-XGuard-Quote; POST /v1/tools/web.fetch and /testnet declare x-xguard-payment-flow. Live probe 2026-09-19: POST
+    /v1/execute {"intent":"Get a technology news digest","limit":3} returned HTTP 402 with header payment-required
+    (base64url PaymentRequired object, x402Version 2, accepts[{scheme:exact, network:eip155:8453, asset:0x8335...2913,
+    amount:"2000", payTo:0x4f32...ba07, maxTimeoutSeconds:300, extra.paymentFlow:upfront}], extensions {bazaar,
+    payment-identifier, offer-receipt, xguard}) and the same object as the JSON body. /.well-known/payment-manifest
+    declares protocol x402, x402_version 2, account_required false, subscription_required false. Nothing was paid.
+  note: The market standard for agent-to-service micropayments; a caller that already speaks x402 v2 needs no bespoke connector. The same declaration appears on the Reconcile contract (openapi/xguardgate-com-reconcile-openapi.json x-payment-info, price $0.002, eip155:8453).
+- id: x402-facilitator
+  name: x402 facilitator API (supported / verify / settle)
+  conforms: true
+  evidence: 'GET https://api.xguardgate.com/supported 200 -> {kinds:[{x402Version, scheme, network}...], extensions, signers}; POST /verify and POST /settle declared in the OpenAPI with the x402 v2 envelope {x402Version, paymentPayload, paymentRequirements}; /.well-known/x402 (kind facilitator) and /healthz list four upstream facilitators the relay routes across (facilitator.payai.network, facilitator.xpay.sh, facilitator.openx402.ai, x402.dexter.cash).'
+  verification: partial
+  note: The discovery and supported-kinds surfaces were fetched; verify/settle were not exercised because they require a signed payment payload.
+- id: x402-bazaar-discovery
+  name: Coinbase x402 Bazaar discovery extension
+  conforms: true
+  verification: declared
+  evidence: 'The 402 body carries extensions.bazaar.info {input:{type:http, method:POST, bodyType:json, body:{...}}, output:{type:json, example}} with a JSON Schema 2020-12 schema; GET /discovery/resources aggregates Bazaar resources (248 KB). The provider''s DISTRIBUTION.md states this "does not establish a listing in Coinbase''s Bazaar".'
+- id: caip-2
+  name: CAIP-2 chain identifiers
+  conforms: true
+  evidence: 'network "eip155:8453" (Base) and "eip155:84532" (Base Sepolia) in /v1/pricing, the 402 accepts[], the payment manifest and the request schema''s network enum (which also accepts the x402-v1 aliases "base" / "base-sepolia").'
+- id: eip-3009
+  name: EIP-3009 transferWithAuthorization (USDC)
+  conforms: true
+  evidence: '/docs firewall.base_usdc_eip3009_binding [from, to, value, nonce, validAfter, validBefore]; the Reconcile API "checks Base USDC EIP-3009 authorization state and recent AuthorizationUsed logs" (openapi/xguardgate-com-reconcile-openapi.json description).'
+- id: mcp
+  name: Model Context Protocol
+  version: '2026-07-28'
+  conforms: true
+  evidence: 'POST https://api.xguardgate.com/mcp initialize returned protocolVersion "2026-07-28", serverInfo {xguard-universal-paid-secretless-gateway, 5.1.0}; tools/list returned 3 tools with JSON Schema inputSchema and tool annotations. See mcp/xguardgate-com-mcp.yml.'
+- id: mcp-registry-server-json
+  name: MCP Registry server.json
+  version: '2025-12-11 schema'
+  conforms: true
+  evidence: 'https://xguardgate.com/server.json (200) and the repository server.json declare $schema https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json, name io.github.moelayyan90/xguard-control-plane, remotes[0] {type streamable-http, url https://api.xguardgate.com/mcp}.'
+- id: a2a
+  name: Agent2Agent protocol
+  version: '1.0.0'
+  conforms: true
+  evidence: 'a2a/xguardgate-com-agent-card.json - supportedInterfaces[0] {url https://api.xguardgate.com/a2a, protocolBinding JSONRPC, protocolVersion "1.0.0"}, capabilities object, skills[] of 4; POST /a2a answered tasks/get with A2A error -32004 Unsupported operation, data.supported ["SendMessage"]. Graded conformant in a2a/xguardgate-com-a2a.yml.'
+- id: json-rpc-2.0
+  conforms: true
+  evidence: 'Both /mcp and /a2a answer {"jsonrpc":"2.0", ...}; /a2a returns -32004 (A2A UnsupportedOperationError) for unimplemented methods.'
+- id: openapi-3.1
+  name: OpenAPI Specification
+  version: 3.1.0
+  conforms: true
+  evidence: 'openapi/xguardgate-com-openapi.json and openapi/xguardgate-com-reconcile-openapi.json both declare openapi "3.1.0" and parse; content-quality gaps: 48 of 49 operations lack operationId, no securitySchemes are declared, one tag covers 5 operations.'
+- id: json-schema-2020-12
+  conforms: true
+  evidence: '$schema https://json-schema.org/draft/2020-12/schema on the 402 bazaar schema and the payment-identifier / offer-receipt extension schemas; capability input_schema objects on /v1/capabilities use 2020-12 keywords (oneOf, const, additionalProperties false).'
+- id: rfc9116
+  name: security.txt
+  conforms: true
+  evidence: 'https://xguardgate.com/.well-known/security.txt and https://api.xguardgate.com/.well-known/security.txt (200, text/plain): Contact, Expires 2027-08-27T00:00:00Z (< 1 year), Canonical x2, Policy, Preferred-Languages en, ar. Not signed.'
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  evidence: '/.well-known/oauth-protected-resource (resource https://api.xguardgate.com) and /.well-known/oauth-protected-resource/mcp (resource https://api.xguardgate.com/mcp) both 200 with the required resource member; bearer_methods_supported [] and no authorization_servers, with an x-xguard-authentication block explaining that no OAuth is used.'
+  note: Served and well-formed; it documents the ABSENCE of OAuth rather than a delegated-identity flow. No dynamic client registration exists.
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: false
+  evidence: '/.well-known/oauth-authorization-server -> 404 {"error":"oauth_authorization_server_unconfigured","error_description":"XGuard does not advertise a fictitious OAuth issuer. Public and x402 paid tools do not require OAuth."}'
+- id: oauth2
+  conforms: false
+  evidence: No OAuth flow on any surface; operator endpoints use an X-XGuard-Key header and agents use scoped xgc_ capabilities or x402 payment. See authentication/xguardgate-com-authentication.yml.
+- id: oidc
+  conforms: false
+  evidence: '/.well-known/openid-configuration -> 404 on every host.'
+- id: idempotency-key-header
+  name: Idempotency-Key HTTP header (draft-ietf-httpapi-idempotency-key-header)
+  conforms: true
+  verification: partial
+  evidence: 'openapi POST /v1/egress/fetch declares header Idempotency-Key ("Same value as idempotency_key when both are provided") and 409 "Request digest conflicts with the key"; /.well-known/xguard-egress.json idempotency {header Idempotency-Key, required_for [POST, PUT, PATCH, DELETE], scope "capability + key + exact request digest", replay "same encrypted stored response"}; docs/secretless-outcomes.md retry table. Paid outcomes use a payment identifier + signed quote instead of the header.'
+  note: Scoped to the delegated-egress surface; see conventions idempotency.coverage partial.
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: 'Errors are application/json {ok:false, error:{code,message,retryable,docs}, error_code, request_id, next} per components.schemas.PublicError; no application/problem+json, type, title or instance.'
+- id: ratelimit-header-fields
+  name: RateLimit header fields (draft-ietf-httpapi-ratelimit-headers)
+  conforms: false
+  evidence: '429 is declared on 4 operations with description "Rate limit" and no headers; no RateLimit-* or Retry-After header was observed on any live response.'
+- id: rfc8594
+  name: Sunset header
+  conforms: false
+  evidence: No deprecated operation, Sunset or Deprecation header in the contract or docs.
+- id: rfc9727
+  name: api-catalog well-known
+  conforms: false
+  evidence: '/.well-known/api-catalog and /.well-known/api-catalog.json -> 404 on every host.'
+- id: apis-json
+  conforms: false
+  evidence: '/apis.json, /.well-known/apis.json, /apis.yml -> 404 on every host.'
+- id: openai-plugin-manifest
+  name: OpenAI ai-plugin.json
+  version: v1
+  conforms: true
+  evidence: '/.well-known/ai-plugin.json 200 with schema_version v1, name_for_model xguard_paid_secretless_gateway, api {type openapi, url https://api.xguardgate.com/openapi.json}, auth {type service_http}.'
+- id: jws-es256
+  name: JSON Web Signature, ES256 (RFC 7515 / RFC 7518) with did:web key ids
+  conforms: true
+  evidence: 'X-XGuard-Quote is a compact JWS whose header is {alg ES256, kid did:web:api.xguardgate.com#xguard-proofrail}; the verification JWK is published at /.well-known/xguard-proof-key.json (P-256, use sig) and every 402 carries Link rel="verification-key" pointing at it; /v1/proof describes ProofRail proofs signed with the same algorithm.'
+- id: hsts
+  name: HTTP Strict Transport Security (preload)
+  conforms: true
+  evidence: 'strict-transport-security: max-age=31536000; includeSubDomains; preload on every api.xguardgate.com response. See security/xguardgate-com-domain-security.yml.'
+- id: cors
+  conforms: true
+  evidence: 'OPTIONS /v1/execute -> 204 with access-control-allow-origin *, allow-methods GET,HEAD,POST,OPTIONS, allow-headers including payment-signature, x-xguard-quote, idempotency-key, mcp-protocol-version, a2a-version and expose-headers including payment-required, payment-response, x-xguard-quote, x-xguard-receipt, x-xguard-proof.'
+- id: robots-ai-crawlers
+  name: robots.txt AI crawler directives
+  conforms: true
+  evidence: 'api.xguardgate.com/robots.txt explicitly allows GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, PerplexityBot and Google-Extended; xguardgate.com/robots.txt allows all and disallows the operator-only paths (/v1/egress/credentials, /v1/egress/capabilities, /v1/balance, /v1/ledger, /v1/receipt/, /admin, /debug).'
+- id: ats-100
+  name: XGuard ATS-100 Agent Transaction Safety score (provider-authored)
+  conforms: true
+  verification: self-declared
+  evidence: 'GET /v1/test/schema: score_standard "XGuard ATS-100", standard_version 2026-08-25, weights {protocol_identification 15, idempotency 20, context_binding 25, replay_uniqueness 15, freshness_window 10, traceability_authorization 15}; specification file specs/ATS-100.md in the repository.'
+  note: A standard the provider wrote and scores itself against; recorded because the contract exposes it, not as an industry conformance.
+claimed_not_verified:
+- id: mpp
+  name: Machine Payments Protocol (Payment HTTP auth)
+  evidence: '/v1/protocols: "recognized payment HTTP authorization surface plus Action Rail compatibility"; /docs protocols.mpp "Payment HTTP auth edge".'
+- id: ap2
+  name: Agent Payments Protocol
+  evidence: '/v1/protocols: "mandate-aware transaction inspection plus Action Rail compatibility".'
+- id: ucp
+  name: Universal Commerce Protocol
+  evidence: '/v1/protocols: "commerce action recognition"; no /.well-known/ucp.json is served.'
+- id: acp
+  name: Agentic Commerce Protocol
+  evidence: '/v1/protocols: "agent checkout recognition"; no /.well-known/acp.json is served.'
+- id: tap
+  name: Trusted Agent Protocol
+  evidence: '/v1/protocols: "trusted-agent identity recognition".'
+  note: These are recognition/classification claims made by the ATS-100 inspector and Action Rail; no conformance test vector or published interop result was found, so none is counted.

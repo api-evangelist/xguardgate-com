@@ -1,0 +1,337 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the XGuard Universal Paid AI Agent + Secretless Gateway API
+  version: '2026-09-19'
+extends: https://api.xguardgate.com/openapi.json
+x-apievangelist:
+  generated: '2026-09-19'
+  method: generated
+  source: openapi/xguardgate-com-openapi.json (verbatim copy of https://api.xguardgate.com/openapi.json, fetched
+    2026-09-19)
+  description: 'Non-destructive enhancements layered over the provider-hosted spec: proposed operationIds for the
+    48 operations that declare none (deterministic method+path names; only xguardExecute is provider-declared),
+    a tag per capability group for the 44 untagged operations, four securitySchemes for the header credentials the
+    spec documents as parameters and text (X-XGuard-Key, Payment-Signature, X-XGuard-Quote, X-XGuard-Credit) applied
+    only where the spec states the credential is required, and info.contact/termsOfService/externalDocs from the
+    published site. Nothing here changes a path, parameter or response; the original openapi/ file is untouched.'
+actions:
+- target: $.info
+  update:
+    termsOfService: https://xguardgate.com/terms
+    contact:
+      name: XGuard security and support contact (see security.txt)
+      url: https://xguardgate.com/security
+    x-apievangelist-note: contact and termsOfService added from the published /terms and /security pages; the provider-hosted
+      spec declares neither.
+- target: $
+  update:
+    externalDocs:
+      description: XGuard developer quickstart
+      url: https://xguardgate.com/developers
+- target: $.tags
+  update:
+  - name: Facilitator
+    description: 'x402 v2 facilitator relay: supported kinds, verify, settle, routing, discovery and receipts.'
+  - name: Paid Web Fetch
+    description: Compatible xguard.web.fetch single-page paid fetch, its preflight, quote and testnet twin.
+  - name: Secretless Egress
+    description: Operator credential custody and scoped agent capabilities for credential-backed upstream calls.
+  - name: Action Rail
+    description: Mandate-bound single-use action permits and controlled execution.
+  - name: Edge
+    description: DNS-authorized merchant transaction proxy.
+  - name: Transaction Safety
+    description: Free ATS-100 agent transaction safety test and inspection.
+  - name: ProofRail
+    description: Signed execution-evidence discovery and verification.
+  - name: Health
+    description: Liveness, readiness, payment readiness, metrics and protocol discovery.
+  - name: Discovery
+    description: Canonical discovery aliases and OAuth protected-resource metadata.
+- target: $.components
+  update:
+    securitySchemes:
+      XGuardKey:
+        type: apiKey
+        in: header
+        name: X-XGuard-Key
+        description: Operator management key. Required on Secretless Egress credential/capability management and
+          Action Rail permits (401 xguard_key_required when absent). Documented in the ai-plugin manifest auth block
+          and docs/secretless-outcomes.md.
+      PaymentSignature:
+        type: apiKey
+        in: header
+        name: Payment-Signature
+        description: x402 v2 signed payment for the retry of a request that answered HTTP 402 with Payment-Required.
+          Not an account credential.
+      XGuardQuote:
+        type: apiKey
+        in: header
+        name: X-XGuard-Quote
+        description: Signed five-minute price quote (ES256 JWS) returned in the 402; must be preserved on the paid
+          retry and is the bearer recovery credential for GET /v1/results/{payment_identifier}.
+      XGuardCredit:
+        type: apiKey
+        in: header
+        name: X-XGuard-Credit
+        description: Signed execution credit issued when every source fails after settlement; redeems one re-execution
+          of the same outcome without a second payment.
+- target: $.paths['/supported'].get
+  update:
+    operationId: getSupported
+    tags:
+    - Facilitator
+- target: $.paths['/verify'].post
+  update:
+    operationId: postVerify
+    tags:
+    - Facilitator
+- target: $.paths['/settle'].post
+  update:
+    operationId: postSettle
+    tags:
+    - Facilitator
+- target: $.paths['/healthz'].get
+  update:
+    operationId: getHealthz
+    tags:
+    - Health
+- target: $.paths['/v1/receipts/{receipt_id}'].get
+  update:
+    operationId: getReceiptsReceiptId
+    tags:
+    - Facilitator
+- target: $.paths['/v1/protocols'].get
+  update:
+    operationId: getProtocols
+    tags:
+    - Health
+- target: $.paths['/v1/inspect'].post
+  update:
+    operationId: postInspect
+    tags:
+    - Transaction Safety
+- target: $.paths['/v1/test'].post
+  update:
+    operationId: postTest
+    tags:
+    - Transaction Safety
+- target: $.paths['/v1/test/schema'].get
+  update:
+    operationId: getTestSchema
+    tags:
+    - Transaction Safety
+- target: $.paths['/edge/{merchant-host}/{path}'].post
+  update:
+    operationId: postEdgeMerchantHostPath
+    tags:
+    - Edge
+- target: $.paths['/facilitator'].get
+  update:
+    operationId: getFacilitator
+    tags:
+    - Facilitator
+- target: $.paths['/discovery/resources'].get
+  update:
+    operationId: getDiscoveryResources
+    tags:
+    - Facilitator
+- target: $.paths['/discovery/search'].get
+  update:
+    operationId: getDiscoverySearch
+    tags:
+    - Facilitator
+- target: $.paths['/v1/facilitator/route'].get
+  update:
+    operationId: getFacilitatorRoute
+    tags:
+    - Facilitator
+- target: $.paths['/v1/actions'].get
+  update:
+    operationId: getActions
+    tags:
+    - Action Rail
+- target: $.paths['/v1/actions/permits'].post
+  update:
+    operationId: postActionsPermits
+    tags:
+    - Action Rail
+- target: $.paths['/v1/actions/execute'].post
+  update:
+    operationId: postActionsExecute
+    tags:
+    - Action Rail
+- target: $.paths['/v1/actions/pricing'].get
+  update:
+    operationId: getActionsPricing
+    tags:
+    - Action Rail
+- target: $.paths['/v1/actions/stats'].get
+  update:
+    operationId: getActionsStats
+    tags:
+    - Action Rail
+- target: $.paths['/v1/egress'].get
+  update:
+    operationId: getEgress
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/credentials'].post
+  update:
+    operationId: postEgressCredentials
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/credentials'].get
+  update:
+    operationId: getEgressCredentials
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/capabilities'].post
+  update:
+    operationId: postEgressCapabilities
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/capabilities/{id}'].delete
+  update:
+    operationId: deleteEgressCapabilitiesId
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/fetch'].post
+  update:
+    operationId: postEgressFetch
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/egress/pricing'].get
+  update:
+    operationId: getEgressPricing
+    tags:
+    - Secretless Egress
+- target: $.paths['/v1/capabilities'].get
+  update:
+    operationId: getCapabilities
+- target: $.paths['/v1/pricing'].get
+  update:
+    operationId: getPricing
+    summary: Exact per-execution outcome pricing
+- target: $.paths['/v1/preflight'].get
+  update:
+    operationId: getPreflight
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/preflight'].post
+  update:
+    operationId: postPreflight
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/pricing/quote'].post
+  update:
+    operationId: postPricingQuote
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/tools/web.fetch'].post
+  update:
+    operationId: postToolsWebFetch
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/tools/web.fetch/testnet'].post
+  update:
+    operationId: postToolsWebFetchTestnet
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/operations/{payment_identifier}'].get
+  update:
+    operationId: getOperationsPaymentIdentifier
+    tags:
+    - Paid Web Fetch
+- target: $.paths['/v1/health'].get
+  update:
+    operationId: getHealth
+    tags:
+    - Health
+- target: $.paths['/v1/ready'].get
+  update:
+    operationId: getReady
+    tags:
+    - Health
+- target: $.paths['/v1/payment/readiness'].get
+  update:
+    operationId: getPaymentReadiness
+    tags:
+    - Health
+- target: $.paths['/v1/metrics'].get
+  update:
+    operationId: getMetrics
+    tags:
+    - Health
+- target: $.paths['/v1/proof'].get
+  update:
+    operationId: getProof
+    tags:
+    - ProofRail
+- target: $.paths['/v1/proofs/verify'].post
+  update:
+    operationId: postProofsVerify
+    tags:
+    - ProofRail
+- target: $.paths['/v1/capabilities/{id}'].get
+  update:
+    operationId: getCapabilitiesId
+    summary: Read one executable capability with its schemas, price and examples
+- target: $.paths['/v1/results/{payment_identifier}'].get
+  update:
+    operationId: getResultsPaymentIdentifier
+    summary: Recover a paid outcome with its payment identifier and original signed quote
+- target: $.paths['/agent-card.json'].get
+  update:
+    operationId: getAgentCardJson
+    tags:
+    - Discovery
+- target: $.paths['/openapi.yaml'].get
+  update:
+    operationId: getOpenapiYaml
+    tags:
+    - Discovery
+- target: $.paths['/pricing'].get
+  update:
+    operationId: getPricing2
+    tags:
+    - Discovery
+- target: $.paths['/.well-known/agent-directory.json'].get
+  update:
+    operationId: getWellKnownAgentDirectoryJson
+    tags:
+    - Discovery
+- target: $.paths['/.well-known/oauth-protected-resource'].get
+  update:
+    operationId: getWellKnownOauthProtectedResource
+    tags:
+    - Discovery
+- target: $.paths['/.well-known/oauth-protected-resource/mcp'].get
+  update:
+    operationId: getWellKnownOauthProtectedResourceMcp
+    tags:
+    - Discovery
+- target: $.paths['/v1/egress/capabilities/{id}'].delete
+  update:
+    security:
+    - XGuardKey: []
+- target: $.paths['/v1/egress/credentials'].post
+  update:
+    security:
+    - XGuardKey: []
+- target: $.paths['/v1/egress/credentials'].get
+  update:
+    security:
+    - XGuardKey: []
+- target: $.paths['/v1/egress/capabilities'].post
+  update:
+    security:
+    - XGuardKey: []
+- target: $.paths['/v1/actions/permits'].post
+  update:
+    security:
+    - XGuardKey: []
+- target: $.paths['/v1/results/{payment_identifier}'].get
+  update:
+    security:
+    - XGuardQuote: []

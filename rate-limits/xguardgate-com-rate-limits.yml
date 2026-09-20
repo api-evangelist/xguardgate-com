@@ -1,0 +1,43 @@
+generated: '2026-09-19'
+method: searched
+source: https://api.xguardgate.com/openapi.json
+derived_from: openapi/xguardgate-com-openapi.json
+probed: true
+docs:
+- https://xguardgate.com/developers
+- https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+- https://api.xguardgate.com/.well-known/xguard-egress.json
+limit_count: 0
+summary: >-
+  XGuard publishes NO request-rate limits. The OpenAPI declares a 429 response on four operations (POST
+  /v1/execute "Rate limit", POST /verify, POST /settle, POST /v1/pricing/quote) with no number, no window and no
+  response headers; the developers page, README and contract docs never state a requests-per-second or per-day
+  ceiling; and none of the live responses observed on 2026-09-19 (200, 204, 402, 404, 422) carried a
+  RateLimit-*, X-RateLimit-* or Retry-After header. What the provider does publish are per-request BOUNDS and
+  per-capability BUDGETS - input sizes, source counts, timeouts, quote lifetimes, capability call caps - which
+  are recorded below as bounds because they are not rate limits and must not be counted as one. An honest zero.
+rate_limits: []
+exhaustion_signal:
+  status: 429
+  declared_on: [xguardExecute, 'POST /verify', 'POST /settle', 'POST /v1/pricing/quote']
+  headers_documented: []
+  headers_observed: []
+  body: 'PublicError envelope (ok:false, error.code, error.retryable, request_id, next) - the 429 description on /verify, /settle and /quote is the generic "Request rejected with repair instructions; no automatic retry of ambiguous settlement."'
+  note: 'The x402 facilitator discovery document describes the relay as failing over "explicit rate-limit rejection" from upstream facilitators, so a 429 on /verify or /settle may originate upstream.'
+bounds:
+- {name: HTML preview size, scope: per-request, limit: 12288, unit: characters, applies_to: 'xguardExecute html field', source: 'request schema maxLength; /try page "up to 12 KiB"'}
+- {name: Source URLs, scope: per-request, limit: 3, unit: urls (plus 1 fallback per source), applies_to: [web-extraction, product-offers, feed-digest], source: 'request schema urls.maxItems / sources.maxItems'}
+- {name: Feed entries, scope: per-request, limit: 30, unit: entries (minimum 1), applies_to: feed-digest, source: 'request schema limit'}
+- {name: Cache age, scope: per-request, limit: 60, unit: seconds (max_age_seconds, default 0), source: request schema}
+- {name: Intent length, scope: per-request, limit: 3000, unit: characters, source: request schema}
+- {name: Query length, scope: per-request, limit: 200, unit: characters, source: request schema}
+- {name: Quote lifetime, scope: per-quote, limit: 300, unit: seconds, source: '/v1/pricing quote_expires_seconds; 402 maxTimeoutSeconds'}
+- {name: Quantity per execution, scope: per-request, limit: 1, unit: bounded execution, source: '/v1/pricing minimum_quantity / maximum_quantity; request schema quantity const 1'}
+- {name: Request body, scope: per-request, limit: 1048576, unit: bytes, applies_to: ['POST /edge/{merchant-host}/{path}', 'POST /v1/egress/fetch'], source: '/docs edge.max_body_bytes; docs/secretless-outcomes.md'}
+- {name: Upstream result buffer, scope: per-request, limit: 49152, unit: bytes, applies_to: 'POST /v1/egress/fetch', source: '/.well-known/xguard-egress.json maximum_response_bytes; docs/secretless-outcomes.md "results are limited to 48 KiB"'}
+- {name: Upstream response headers, scope: per-request, limit: 8192, unit: bytes, applies_to: 'POST /v1/egress/fetch', source: docs/secretless-outcomes.md}
+- {name: Upstream timeout, scope: per-request, limit: 30, unit: seconds, applies_to: 'POST /v1/egress/fetch', source: docs/secretless-outcomes.md}
+- {name: Capability lifetime, scope: per-capability, limit: '30-3600', unit: seconds (ttl_seconds), applies_to: 'POST /v1/egress/capabilities', source: docs/secretless-outcomes.md}
+- {name: Capability call cap, scope: per-capability, limit: 'operator-set', unit: calls (max_calls) and credits (max_total_credits, max_credits_per_call), applies_to: 'POST /v1/egress/capabilities', source: request schema}
+- {name: Idempotency key length, scope: per-request, limit: '8-128', unit: ASCII characters, applies_to: 'POST /v1/egress/fetch', source: docs/secretless-outcomes.md}
+- {name: SDK request deadline, scope: per-attempt (client side), limit: 30, unit: seconds (timeoutMs 1-300000 configurable), source: sdk/README.md}

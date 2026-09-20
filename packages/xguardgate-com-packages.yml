@@ -1,0 +1,96 @@
+generated: '2026-09-19'
+method: searched
+source: https://github.com/moelayyan90/XGuard/releases/tag/xguard-x402-sdk-v5.1.0
+docs:
+- https://github.com/moelayyan90/XGuard/blob/main/sdk/README.md
+- https://github.com/moelayyan90/XGuard/blob/main/package.json
+- https://xguardgate.com/developers
+package_count: 6
+official_sdk_count: 1
+summary: >-
+  XGuard ships one first-party client library - the JavaScript "xguard-x402-control-plane" SDK (sdk/index.js
+  facilitator helpers + sdk/outcomes.js paid-outcome client) - and it is deliberately NOT on npm: sdk/README.md
+  says "no npm publication is claimed. Install the tested GitHub revision", and registry.npmjs.org returns 404
+  for xguard-x402-control-plane, @xguard/edge, @xguard/sdk, @xguard/core, xguard and xguardgate. Distribution is
+  a GitHub Release tarball (xguard-x402-control-plane-5.1.0.tgz + SHA256SUMS.txt, 2026-09-01) built by the
+  release-x402-sdk workflow, or a git clone as the developers page instructs. Python, Go, Cloudflare Worker and
+  WordPress code exist in integrations/ but as single-file examples/connectors rather than packaged libraries;
+  an "xguard CLI" appears only in the 0.1.0-alpha packaging bundle of 2026-08-18 and nowhere in the current
+  tree, so no cli/ artifact is emitted. The name collisions on public registries (PyPI "xguard" 0.0.2, a
+  guard-clause library by johngitahi; npm "koa-xguard") are NOT this provider.
+packages:
+- name: xguard-x402-control-plane
+  language: JavaScript (ESM, Node >= 20)
+  kind: SDK
+  official: true
+  registry: github-release
+  registry_url: https://github.com/moelayyan90/XGuard/releases/tag/xguard-x402-sdk-v5.1.0
+  version: 5.1.0
+  published: '2026-09-01'
+  license: Apache-2.0
+  install: 'npm install https://github.com/moelayyan90/XGuard/releases/download/xguard-x402-sdk-v5.1.0/xguard-x402-control-plane-5.1.0.tgz @x402/core@2.24.0  (or git clone https://github.com/moelayyan90/XGuard.git)'
+  entrypoints: ['xguard-x402-control-plane (sdk/index.js: facilitator config, xguardSupported, createXGuardAgentClient)', 'xguard-x402-control-plane/outcomes (sdk/outcomes.js: createXGuardOutcomeClient with execute/getResult and a mandatory maxAmountAtomic budget)']
+  peer_dependencies: ['@x402/core >=2.24.0 <3']
+  npm: {status: 404, checked: '2026-09-19', note: 'registry.npmjs.org/xguard-x402-control-plane -> Not found; the package.json name is reserved in the repo but the provider states no npm publication is claimed.'}
+  source: https://github.com/moelayyan90/XGuard/tree/main/sdk
+  note: The release version equals the product/control-plane version, so this SDK is current with the API it wraps (both 5.1.0, API observed 2026-09-19).
+- name: '@xguard/edge'
+  language: JavaScript (ESM)
+  kind: adapter
+  official: true
+  registry: none
+  version: 1.0.0
+  published: null
+  license: MIT
+  source: https://github.com/moelayyan90/XGuard/tree/main/packages/edge
+  npm: {status: 404, checked: '2026-09-19'}
+  note: 'package.json describes a "protocol-neutral fetch adapter for routing agent transactions through XGuard"; it exists only in the source tree - no release tag or registry publication names it, so published is null.'
+- name: '@xguard/sdk, @xguard/core, xguard (CLI)'
+  language: JavaScript
+  kind: alpha bundle
+  official: true
+  registry: github-release
+  registry_url: https://github.com/moelayyan90/XGuard/releases/tag/xguard-packages-v0.1.0-alpha.1
+  version: '0.1.0-alpha.1 (@xguard/sdk); 0.1.0-alpha.0 (@xguard/core, xguard CLI)'
+  published: '2026-08-18'
+  npm: {status: 404, checked: '2026-09-19', note: 'Release notes: "Installable fallback artifacts for XGuard while first npm publication remains identity-gated."'}
+  note: Predates the 5.x control-plane SDK; none of these names appear in the current repository tree. Recorded as history, not as a current install path.
+- name: XGuard ATS-100 Agent Transaction Safety Gate
+  language: composite GitHub Action
+  kind: github-action
+  official: true
+  registry: github-action
+  registry_url: https://github.com/moelayyan90/XGuard/blob/main/action.yml
+  version: null
+  published: null
+  install: 'uses: moelayyan90/XGuard@main  (inputs: sample, min-score default 90, api-url default https://api.xguardgate.com/v1/test)'
+  note: Versioned only by git ref; no Marketplace listing was verified.
+- name: xguard-x402-connector (WordPress)
+  language: PHP
+  kind: plugin
+  official: true
+  registry: none
+  version: null
+  published: null
+  source: https://github.com/moelayyan90/XGuard/tree/main/integrations/wordpress/xguard-x402-connector
+  note: Source-only WordPress connector; no wordpress.org listing checked or claimed. The separate "email-shield-v3.0.0" release (2026-08-23) is a WordPress integration for a different XGuard product.
+- name: Integration examples (not packages)
+  language: Python (FastAPI), Go (Gin), TypeScript (Cloudflare Worker paid MCP)
+  kind: examples
+  official: true
+  registry: none
+  version: null
+  published: null
+  files: ['integrations/python/fastapi_xguard.py', 'integrations/go/gin_xguard.go', 'integrations/cloudflare/paid-mcp-xguard.ts']
+  pypi: {status: 404, package: xguardgate, checked: '2026-09-19'}
+  note: 'Single-file drop-ins showing how to point the official x402 SDKs at the XGuard facilitator; no pyproject/setup.py or go.mod publishes them.'
+searched:
+- {registry: npm, query: 'https://registry.npmjs.org/xguard-x402-control-plane', status: 404}
+- {registry: npm, query: 'https://registry.npmjs.org/@xguard%2fedge', status: 404}
+- {registry: npm, query: 'https://registry.npmjs.org/@xguard%2fmcp', status: 404}
+- {registry: npm, query: 'https://registry.npmjs.org/xguard', status: 404}
+- {registry: npm, query: 'https://registry.npmjs.org/xguardgate', status: 404}
+- {registry: npm, query: 'https://registry.npmjs.org/-/v1/search?text=xguard', result: 'koa-xguard 1.0.0 only - unrelated'}
+- {registry: pypi, query: 'https://pypi.org/pypi/xguard/json', result: 'xguard 0.0.2 "yet another guard clause library" by johngitahi - unrelated, not linked'}
+- {registry: pypi, query: 'https://pypi.org/pypi/xguardgate/json', status: 404}
+- {registry: github-releases, query: 'https://api.github.com/repos/moelayyan90/XGuard/releases', result: '7 releases, 2026-08-16 .. 2026-09-01'}

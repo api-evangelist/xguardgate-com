@@ -1,0 +1,143 @@
+generated: '2026-09-19'
+method: searched
+source: https://github.com/moelayyan90/XGuard/blob/main/docs/public-gateway-contract.md
+derived_from: openapi/xguardgate-com-openapi.json
+probed: true
+docs:
+- https://github.com/moelayyan90/XGuard/blob/main/docs/public-gateway-contract.md
+- https://github.com/moelayyan90/XGuard/blob/main/docs/secretless-outcomes.md
+- https://api.xguardgate.com/openapi.json
+format: json-error-envelope
+summary: >-
+  XGuard uses ONE envelope for every REST failure, declared once as components.schemas.PublicError and
+  documented in docs/public-gateway-contract.md: ok:false, error{code,message,retryable,docs,...}, error_code,
+  request_id and a next{} object that tells the caller what to do. The request id in the body matches the
+  x-xguard-request-id response header. Repair-shaped errors add repair.suggested_request (a body the caller can
+  send instead), closest_capabilities and example. HTTP 402 is NOT an error in this envelope: it is the native
+  x402 v2 PaymentRequired object (status, price, accepts[], resource, extensions) with additive xguard_error
+  guidance, carried with Payment-Required and X-XGuard-Quote headers. Not RFC 9457: no type URI, title, status
+  or instance member, and the media type is application/json. The JSON-RPC surfaces (/mcp, /a2a) use JSON-RPC
+  2.0 error objects instead. Every unknown path on xguardgate.com, www and api.xguardgate.com returns this
+  same envelope with code not_found (374 bytes), never an HTML shell; reconcile.xguardgate.com returns a
+  13-byte text/plain "404 Not Found".
+envelope:
+  media_type: application/json
+  schema: openapi/xguardgate-com-openapi.json#/components/schemas/PublicError
+  required: [ok, error, error_code, request_id, next]
+  fields:
+  - {name: ok, type: 'const false'}
+  - {name: error.code, type: string, description: 'Stable machine code (snake_case). Consumers should read error.code or error_code, not the message.'}
+  - {name: error.message, type: string}
+  - {name: error.retryable, type: boolean, description: 'Whether an identical retry may succeed.'}
+  - {name: error.docs, type: uri, description: 'Always https://api.xguardgate.com/openapi.json in observed responses.'}
+  - {name: error.field, type: string, optional: true}
+  - {name: error.required_fields, type: 'string[]', optional: true}
+  - {name: error.example, type: object, optional: true, description: 'A request that would have worked.'}
+  - {name: error_code, type: string, description: 'Duplicate of error.code at the top level.'}
+  - {name: request_id, type: string, description: 'xgr_<32 hex>; equals the x-xguard-request-id response header.'}
+  - {name: next, type: object, description: 'Machine next step: {method, path, action, payment_required}.'}
+  - {name: repair, type: object, optional: true, description: '{missing[], suggested_request} on validation and intent failures.'}
+  - {name: closest_capabilities, type: 'object[]', optional: true}
+  headers:
+  - {name: x-xguard-request-id, description: 'Request id, also in the body.'}
+  - {name: Payment-Required, on: 402, description: 'Base64url x402 v2 PaymentRequired object.'}
+  - {name: X-XGuard-Quote, on: 402, description: 'Signed ES256 quote (kid did:web:api.xguardgate.com#xguard-proofrail); preserve on the paid retry.'}
+  - {name: Link, on: 402, description: 'rel="pricing" -> /v1/pricing/quote; rel="verification-key" -> /.well-known/xguard-proof-key.json'}
+observed:
+- {status: 404, code: not_found, url: 'https://api.xguardgate.com/swagger.json', body: '{"error":{"code":"not_found","message":"Request rejected: not_found. Inspect the endpoint requirements.","docs":"https://api.xguardgate.com/openapi.json","retryable":false},"ok":false,"error_code":"not_found","request_id":"xgr_...","next":{"method":"GET","path":"/openapi.json","action":"inspect_endpoint_requirements","payment_required":false}}', fetched: '2026-09-19'}
+- {status: 404, code: not_found, url: 'https://api.xguardgate.com/v1/results/xg_nonexistent', body: '{"error":{"code":"not_found","message":"The requested XGuard resource was not found.","retryable":false,"details":null,...},"recoverable":false,...}', fetched: '2026-09-19'}
+- {status: 404, code: oauth_authorization_server_unconfigured, url: 'https://api.xguardgate.com/.well-known/oauth-authorization-server', body: '{"error":"oauth_authorization_server_unconfigured","error_description":"XGuard does not advertise a fictitious OAuth issuer. Public and x402 paid tools do not require OAuth.","resource_metadata":"https://api.xguardgate.com/.well-known/oauth-protected-resource"}', note: 'RFC 6749-style flat error object, the one path that does not use the envelope.', fetched: '2026-09-19'}
+- {status: 401, code: xguard_key_required, url: 'GET https://api.xguardgate.com/v1/egress/credentials', note: 'No WWW-Authenticate header is returned.', fetched: '2026-09-19'}
+- {status: 401, code: missing_xguard_license, url: 'GET https://api.xguardgate.com/v1/balance', fetched: '2026-09-19'}
+- {status: 422, code: capability_unavailable, url: 'POST https://api.xguardgate.com/v1/execute {}', body: '{"ok":false,"error":{"code":"capability_unavailable","message":"No executable capability matches this intent. Select one of the available outcomes.","example":{"intent":"demo"},...},"repair":{"missing":["supported intent"],"suggested_request":{"intent":"demo"}},"available":false,"closest_capabilities":[...]}', fetched: '2026-09-19'}
+- {status: 402, code: payment_required, url: 'POST https://api.xguardgate.com/v1/execute {"intent":"Get a technology news digest","limit":3}', body: '{"status":"payment_required","capability":"feed-digest","price":{"amount_atomic":"2000","amount":"0.002000","currency":"USDC","exact":true},"expires_at":"...","target_contacted":false,"retry":{"method":"POST","url":".../v1/execute","preserve_body":true,"preserve_headers":["X-XGuard-Quote"],"payment_header":"Payment-Signature"},"x402Version":2,"error":"payment_required","accepts":[{"scheme":"exact","network":"eip155:8453","asset":"0x8335...2913","amount":"2000","payTo":"0x4f32...ba07","maxTimeoutSeconds":300,...}],"extensions":{"bazaar":...,"payment-identifier":...,"offer-receipt":...,"xguard":...}}', note: 'Nothing was paid; the challenge is what an unsigned request receives. 8,958-byte body.', fetched: '2026-09-19'}
+problem_types:
+- status: 400
+  title: Request rejected with repair instructions
+  occurrences: 7
+  operations: [xguardExecute, 'POST /verify', 'POST /settle', 'POST /v1/test', 'POST /v1/preflight', 'POST /v1/pricing/quote', 'POST /v1/proofs/verify']
+  causes:
+  - Malformed or contradictory input (intent, source, quantity, network or tool fields that conflict are rejected rather than resolved by precedence).
+  - Payment firewall block on /verify and /settle (missing_payment_context when paymentPayload or paymentRequirements is absent; requirement/accepted binding mismatch; recipient, value, nonce or validity-window mismatch).
+  - Secretless Egress write (POST/PUT/PATCH/DELETE) without an idempotency key, rejected before billing.
+  remediation: Read error.code and repair.suggested_request; resend the corrected request. retryable is false.
+- status: 401
+  title: Credential required
+  occurrences: 3
+  codes: [xguard_key_required, missing_xguard_license, capability_required]
+  operations: ['POST /v1/egress/credentials', 'POST /v1/actions/permits', 'POST /v1/egress/fetch']
+  remediation: Operator endpoints need X-XGuard-Key; agent egress needs a valid scoped capability. No WWW-Authenticate challenge is sent.
+- status: 402
+  title: Payment or Usage Credits required
+  occurrences: 8
+  operations: [xguardExecute, 'POST /settle', 'POST /edge/{merchant-host}/{path}', 'POST /v1/actions/permits', 'POST /v1/actions/execute', 'POST /v1/egress/fetch', 'POST /v1/tools/web.fetch', 'POST /v1/tools/web.fetch/testnet']
+  shape: x402 v2 PaymentRequired object (not the PublicError envelope) on the public paid path; Usage Credits exhaustion on operator paths.
+  remediation: Sign Payment-Required with an x402 v2 client and retry the IDENTICAL body with Payment-Signature, preserving X-XGuard-Quote; the quote expires in 300 seconds. Operator paths need prepaid Usage Credits.
+- status: 403
+  title: Unsafe target, scope denied or recovery credential rejected
+  occurrences: 7
+  operations: [xguardExecute, 'GET /v1/results/{payment_identifier}', 'POST /edge/{merchant-host}/{path}', 'DELETE /v1/egress/capabilities/{id}', 'POST /v1/egress/fetch', 'POST /v1/preflight', 'POST /v1/pricing/quote']
+  causes:
+  - Private, local, cloud-metadata, credential-bearing or XGuard-owned target URL (SSRF policy).
+  - Merchant hostname has not published the _xguard.<host> TXT "xguard-edge=enabled" record.
+  - Caller is not the capability owner, or the capability/credential scope (host, path prefix, method) denies the request.
+  - Wrong X-XGuard-Quote presented as the recovery credential.
+- status: 404
+  title: Not found / unknown identifier
+  occurrences: 4
+  operations: ['GET /v1/receipts/{receipt_id}', 'GET /v1/operations/{payment_identifier}', 'GET /v1/capabilities/{id}', 'GET /v1/results/{payment_identifier}']
+  note: GET /v1/capabilities/{id} returns "Unavailable with alternatives" - a 404 that lists the capabilities that do exist.
+- status: 409
+  title: Replay, idempotency, state or binding conflict
+  occurrences: 5
+  codes: [idempotency_request_conflict, execution_in_progress, execution_outcome_unknown]
+  operations: [xguardExecute, 'POST /settle', 'POST /v1/actions/execute', 'POST /v1/egress/fetch', 'POST /v1/tools/web.fetch']
+  causes:
+  - Same Idempotency-Key with a changed URL, query, method, headers or serialized body (idempotency_request_conflict).
+  - A concurrent copy while the first attempt is active (execution_in_progress; poll with the same key).
+  - A reserved attempt whose outcome is unknown (execution_outcome_unknown; never re-executed automatically).
+  - Single-use action permit replayed, or x402 payment replayed against the durable receipt store.
+  remediation: Do NOT rotate the key to escape an ambiguous outcome; recover with the same key / payment identifier. This is the provider's explicit instruction.
+- status: 413
+  title: Payload too large
+  occurrences: 4
+  operations: [xguardExecute, 'POST /verify', 'POST /settle', 'POST /v1/pricing/quote']
+  limits: 'html <= 12,288 chars; request bodies <= 1 MiB (edge and egress); buffered upstream results <= 48 KiB.'
+- status: 422
+  title: Unprocessable - no capability matches, or hostname has no public DNS address
+  occurrences: 3
+  codes: [capability_unavailable]
+  operations: [xguardExecute, 'POST /v1/preflight', 'POST /v1/pricing/quote']
+  remediation: The body is self-describing - repair.suggested_request and closest_capabilities[] name a request that will work.
+- status: 428
+  title: Scoped mandate required
+  occurrences: 1
+  operations: ['POST /v1/actions/permits']
+  remediation: Create a mandate (POST /v1/mandates per /docs) before requesting an action permit.
+- status: 429
+  title: Rate limit
+  occurrences: 4
+  operations: [xguardExecute, 'POST /verify', 'POST /settle', 'POST /v1/pricing/quote']
+  note: Declared in the contract with no limit number and no Retry-After / RateLimit-* header documented; see rate-limits/xguardgate-com-rate-limits.yml.
+- status: 500
+  title: Internal error with repair instructions
+  occurrences: 2
+  operations: [xguardExecute, 'POST /v1/pricing/quote']
+- status: 502
+  title: No usable source; execution credit retained
+  occurrences: 1
+  operations: [xguardExecute]
+  remediation: When every source (and fallback) fails after settlement, the response carries a signed execution credit; retry the same outcome with X-XGuard-Credit and the original quote. Not a cash refund.
+- status: 503
+  title: Payment unavailable, settlement awaiting reconciliation, or ambiguous outcome (fail closed)
+  occurrences: 10
+  operations: [xguardExecute, 'POST /verify', 'POST /settle', 'GET /v1/facilitator/route', 'POST /v1/actions/execute', 'POST /v1/egress/fetch', 'GET /v1/ready', 'POST /v1/preflight', 'POST /v1/pricing/quote', 'POST /v1/tools/web.fetch']
+  remediation: Retryable on the free paths (quote, preflight, route). On paid or delegated paths XGuard never auto-replays an ambiguous settlement or upstream call; poll GET /v1/operations/{payment_identifier} or the same idempotency key, and for Base USDC timeouts use the reconcile service.
+- status: 308
+  title: Canonical discovery alias
+  occurrences: 3
+  operations: ['GET /agent-card.json', 'GET /openapi.yaml', 'GET /pricing']
+  note: Not errors - permanent redirects to the canonical documents.
+jsonrpc_errors:
+  surfaces: [https://api.xguardgate.com/mcp, https://api.xguardgate.com/a2a]
+  shape: 'JSON-RPC 2.0 error objects; paid MCP tool calls return HTTP 200 with result.isError true and the x402 challenge in structuredContent rather than a JSON-RPC error.'

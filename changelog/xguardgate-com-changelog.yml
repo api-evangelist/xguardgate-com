@@ -1,0 +1,65 @@
+generated: '2026-09-19'
+method: searched
+source: https://github.com/moelayyan90/XGuard/releases
+docs:
+- https://github.com/moelayyan90/XGuard/commits/main
+- https://github.com/moelayyan90/XGuard/blob/main/CANONICAL_IDENTITY.md
+description: >-
+  XGuard publishes no CHANGELOG file and no /changelog page (404 on xguardgate.com); the dated record is the
+  GitHub Releases feed of the single public repository moelayyan90/XGuard (created 2026-08-14, JavaScript,
+  Apache-2.0, 207 files, last push 2026-09-19). Releases are tagged per component - the x402 SDK carries the
+  product version (5.1.0), while browser-side and packaging artifacts have their own series. The live API
+  additionally exposes its deployed build in every response (x-xguard-version 5.1.0, x-xguard-worker-version-tag
+  git-2a546589e186), and the repository's docs/settlement-context.md maps a Worker version id to a commit, so a
+  consumer can tie a response to source. Product-level change notes live in the README ("New quotes explicitly
+  declare extra.paymentFlow: upfront; outstanding older quotes retain their original terms") and in
+  DISTRIBUTION.md's dated status sections (e.g. "PAID-AGENT DISCOVERY STATUS (2026-09-14)").
+versioning:
+  scheme: semantic version per component, tag form <component>-v<semver>
+  current: 5.1.0
+  current_component: xguard-x402-sdk / control plane (matches OpenAPI info.version, MCP serverInfo.version, agent card version and x-xguard-version)
+  deployed_build_header: x-xguard-worker-version-tag
+  detail: lifecycle/xguardgate-com-lifecycle.yml
+entries:
+- version: xguard-x402-sdk-v5.1.0
+  date: '2026-09-01'
+  latest: true
+  title: XGuard x402 SDK v5.1.0
+  highlights:
+  - Tested drop-in x402 v2 facilitator SDK for XGuard (JavaScript/TypeScript helpers plus Express, Hono, Next.js, paid MCP, Python/FastAPI and Go/Gin examples)
+  - Canonical facilitator https://api.xguardgate.com; release tarball smoke-tested against the live /supported surface
+  assets: [xguard-x402-control-plane-5.1.0.tgz, SHA256SUMS.txt]
+  breaking: []
+- version: xguard-x402-sdk-v5.0.1
+  date: '2026-08-27'
+  title: XGuard x402 SDK v5.0.1
+  highlights: [Same SDK line; superseded by 5.1.0]
+- version: email-shield-v3.0.0
+  date: '2026-08-23'
+  title: XGuard Email Shield v3.0.0
+  highlights: [Self-service WordPress integration for XGuard Email Shield]
+  note: A separate product line from the paid-agent gateway.
+- version: xguard-task-recovery-v0.3.0
+  date: '2026-08-18'
+  title: XGuard Task Recovery v0.3.0
+  highlights: ['Browser-side task continuity and recovery surface; public early-access runtime package; "Browser-store publication is tracked separately and is not claimed by this release"']
+- version: xguard-payment-layer-v0.2.1
+  date: '2026-08-18'
+  title: XGuard Payment Layer v0.2.1
+  highlights: ['Buyer-side universal payment-control browser layer (inline XGuard rail, payment memory, bill splitting); public early-access runtime package']
+- version: xguard-packages-v0.1.0-alpha.1
+  date: '2026-08-18'
+  title: XGuard installable packages v0.1.0-alpha.1
+  highlights: ['Installable fallback artifacts "while first npm publication remains identity-gated": @xguard/sdk 0.1.0-alpha.1, @xguard/core and xguard CLI 0.1.0-alpha.0, SHA256 checksums']
+- version: xguard-packages-v0.1.0-alpha.0
+  date: '2026-08-16'
+  title: XGuard installable packages v0.1.0-alpha.0
+  highlights: ['First installable bundle: @xguard/core, @xguard/sdk, xguard CLI']
+recent_commits:
+- {date: '2026-09-16', message: 'Merge pull request #545 from moelayyan90/fix/mcpcentral-discovery'}
+- {date: '2026-09-16', message: 'Fix MCPCentral discovery through its documented registry mirror'}
+- {date: '2026-09-16', message: 'Merge pull request #544 from moelayyan90/fix/public-gateway-contract'}
+product_change_notes:
+- {date: '2026-09-14', source: DISTRIBUTION.md, note: 'Paid /v1/execute challenge now carries a validated Bazaar declaration with public request examples and an output schema; native x402 MCP transport exercised with the official MCP and x402 clients.'}
+- {date: null, source: README.md, note: 'New quotes declare extra.paymentFlow "upfront"; outstanding older quotes retain their original terms. MCP tools/list reduced to xguard_discover, xguard_execute, xguard_get_result.'}
+- {date: null, source: sdk/README.md, note: 'All Secretless Egress writes now require idempotencyKey; a changed request with the same key returns 409.'}

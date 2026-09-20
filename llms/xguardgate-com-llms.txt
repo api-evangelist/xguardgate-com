@@ -1,0 +1,21 @@
+# XGuard
+
+XGuard returns normalized page evidence, structured product offers and deduplicated RSS/Atom digests. Start with xguard_execute {"intent":"demo"} for a free extraction result. For live work describe a supported intent with up to three public URLs, or ask for a technology feed digest. Call POST https://api.xguardgate.com/v1/execute (or xguard_execute) directly; discovery and quotes are optional. HTTP returns 402 with exact USDC price, Payment-Required and X-XGuard-Quote. MCP returns an isError tool result with PaymentRequired in structuredContent and content[0].text; retry identical arguments with params._meta["x402/payment"]. A funded x402 v2 client must preserve the payment-identifier and xguard extensions, including the signed quote; HTTP clients may also preserve X-XGuard-Quote explicitly. MCP settlement is returned in result._meta["x402/payment-response"]. The server verifies and settles before source access. Source digests prove observed content integrity, not factual truth. Errors include repair.suggested_request. No search, OCR, general AI model or private API access is included. Legacy x402-paid tools and reusable upstream API credentials remain available through the documented compatibility routes.
+
+## Available outcomes
+- extract-preview: Extract text, metadata and structured offers from supplied HTML, or try labelled sample documents, with no outbound calls. Price: 0.000000 USDC. https://api.xguardgate.com/v1/capabilities/extract-preview
+- web-extraction: Turn up to three public pages into a deduplicated bundle of main text, titles, links, metadata and source digests, with optional backup sources. Price: 0.003000 USDC. https://api.xguardgate.com/v1/capabilities/web-extraction
+- product-offers: Extract and normalize Schema.org offers from up to three supplied product pages; group matching identifiers and currencies with source evidence. Price: 0.006000 USDC. https://api.xguardgate.com/v1/capabilities/product-offers
+- feed-digest: Merge RSS and Atom feeds, select working sources, fall back to supplied mirrors, remove repeated links and return a chronological digest with provenance. Price: 0.002000 USDC. https://api.xguardgate.com/v1/capabilities/feed-digest
+
+## First result
+POST https://api.xguardgate.com/v1/execute
+Content-Type: application/json
+{"intent":"demo"}
+
+## Recovery
+GET https://api.xguardgate.com/v1/results/{payment_identifier} with the original X-XGuard-Quote. This quote grants access to the stored public-source result; do not publish it.
+
+OpenAPI: https://api.xguardgate.com/openapi.json
+MCP: https://api.xguardgate.com/mcp
+A2A: https://api.xguardgate.com/a2a

@@ -1,0 +1,33 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the XGuard Reconcile API
+  version: '2026-09-19'
+extends: https://reconcile.xguardgate.com/openapi.json
+x-apievangelist:
+  generated: '2026-09-19'
+  method: generated
+  source: openapi/xguardgate-com-reconcile-openapi.json (verbatim copy of https://reconcile.xguardgate.com/openapi.json,
+    fetched 2026-09-19)
+  description: Adds a proposed operationId and tag to the single operation, which the provider publishes without
+    either, plus contact/terms/externalDocs from the published site. The x-payment-info extension the provider declares
+    is left untouched.
+actions:
+- target: $.info
+  update:
+    termsOfService: https://xguardgate.com/terms
+    contact:
+      name: XGuard security and support contact (see security.txt)
+      url: https://xguardgate.com/security
+- target: $
+  update:
+    externalDocs:
+      description: XGuard Reconcile - x402 timeout recovery
+      url: https://reconcile.xguardgate.com/
+    tags:
+    - name: Reconciliation
+      description: Post-timeout x402 settlement reconciliation on Base mainnet.
+- target: $.paths['/v1/reconcile'].get
+  update:
+    operationId: reconcileSettlement
+    tags:
+    - Reconciliation
