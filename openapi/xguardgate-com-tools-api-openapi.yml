@@ -1,0 +1,357 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Tools…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Tools
+paths:
+  /v1/tools/web.fetch:
+    post:
+      summary: Fetch a public HTTPS resource only after required x402 settlement
+      description: 'Payment is mandatory. Call directly with a public HTTPS URL: if no quote is supplied, XGuard creates an input-bound signed quote and returns it inside HTTP 402 and X-XGuard-Quote. Retry only after creating Payment-Signature from Payment-Required. Advanced clients may obtain the same quote first from /v1/pricing/quote. XGuard verifies and settles before any upstream request.'
+      parameters:
+      - name: X-XGuard-Quote
+        in: header
+        required: false
+        description: Omit on the first call; XGuard returns an input-bound quote in this response header. Send it on the paid retry.
+        schema:
+          type: string
+      - name: Payment-Signature
+        in: header
+        required: false
+        description: Omit on the first call to receive HTTP 402; required on the settled retry.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              anyOf:
+              - required:
+                - url
+              - required:
+                - target_url
+              - required:
+                - targetUrl
+              - required:
+                - uri
+              - required:
+                - target
+              - required:
+                - resource
+              - required:
+                - endpoint
+              - required:
+                - href
+              - required:
+                - curl
+              - required:
+                - command
+              - required:
+                - operation
+              - required:
+                - action
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  description: Canonical public HTTPS target URL.
+                target_url:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                targetUrl:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                uri:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                target:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                resource:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                endpoint:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                href:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                curl:
+                  type: string
+                  description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                command:
+                  type: string
+                  description: Alias for curl.
+                operation:
+                  oneOf:
+                  - type: string
+                  - type: object
+                  description: OpenAPI/MCP-style operation envelope.
+                action:
+                  oneOf:
+                  - type: string
+                  - type: object
+                  description: Action envelope.
+                method:
+                  type: string
+                  enum:
+                  - GET
+                  - HEAD
+                  default: GET
+                timeout_ms:
+                  type: integer
+                  minimum: 1000
+                  maximum: 10000
+                  default: 8000
+                timeoutMs:
+                  type: integer
+                  minimum: 1000
+                  maximum: 10000
+                  deprecated: true
+                max_bytes:
+                  type: integer
+                  minimum: 1024
+                  maximum: 131072
+                  default: 131072
+                maxBytes:
+                  type: integer
+                  minimum: 1024
+                  maximum: 131072
+                  deprecated: true
+                mode:
+                  type: string
+                  enum:
+                  - auto
+                  - text
+                  - json
+                  default: auto
+                quote:
+                  type: string
+                  description: Compact signed quote returned by xguard.pricing.quote.
+              additionalProperties: true
+            example:
+              url: https://example.com/
+              method: GET
+      responses:
+        '200':
+          description: Settled result, Payment-Response, signed receipt, and ProofRail evidence
+          content:
+            application/json:
+              schema:
+                type: object
+        '402':
+          description: Required x402 v2 Payment-Required challenge, automatically issued input-bound quote, and signed offer
+          content:
+            application/json:
+              schema:
+                type: object
+        '409':
+          description: Replay or idempotency conflict
+        '503':
+          description: Ambiguous settlement; no upstream execution
+      x-xguard-payment-flow:
+        price:
+          amount_atomic: '1000'
+          currency: USDC
+          decimals: 6
+        steps:
+        - 'POST https://api.xguardgate.com/v1/tools/web.fetch with {url: "https://example.com/"}'
+        - Read Payment-Required and X-XGuard-Quote from HTTP 402
+        - Sign Payment-Required with an official x402 v2 payer
+        - Retry the identical request with Payment-Signature and X-XGuard-Quote
+        - Verify Payment-Response, signed receipt, and ProofRail evidence on HTTP 200
+        standalone_quote_optional: https://api.xguardgate.com/v1/pricing/quote
+        settlement_before_execution: true
+        payment_required: true
+      tags:
+      - Tools
+      operationId: postV1ToolsWebFetch
+      x-operation-id-source: derived
+  /v1/tools/web.fetch/testnet:
+    post:
+      summary: Base Sepolia testnet form of xguard.web.fetch
+      description: Same mandatory one-call x402 v2 flow as mainnet, using Base Sepolia USDC. A first request without a quote automatically returns a signed testnet quote and Payment-Required challenge; test settlement never counts as revenue.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              anyOf:
+              - required:
+                - url
+              - required:
+                - target_url
+              - required:
+                - targetUrl
+              - required:
+                - uri
+              - required:
+                - target
+              - required:
+                - resource
+              - required:
+                - endpoint
+              - required:
+                - href
+              - required:
+                - curl
+              - required:
+                - command
+              - required:
+                - operation
+              - required:
+                - action
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  description: Canonical public HTTPS target URL.
+                target_url:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                targetUrl:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                uri:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                target:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                resource:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                endpoint:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                href:
+                  type: string
+                  format: uri
+                  pattern: ^https://
+                  deprecated: true
+                  description: Accepted alias for url.
+                curl:
+                  type: string
+                  description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                command:
+                  type: string
+                  description: Alias for curl.
+                operation:
+                  oneOf:
+                  - type: string
+                  - type: object
+                  description: OpenAPI/MCP-style operation envelope.
+                action:
+                  oneOf:
+                  - type: string
+                  - type: object
+                  description: Action envelope.
+                method:
+                  type: string
+                  enum:
+                  - GET
+                  - HEAD
+                  default: GET
+                timeout_ms:
+                  type: integer
+                  minimum: 1000
+                  maximum: 10000
+                  default: 8000
+                timeoutMs:
+                  type: integer
+                  minimum: 1000
+                  maximum: 10000
+                  deprecated: true
+                max_bytes:
+                  type: integer
+                  minimum: 1024
+                  maximum: 131072
+                  default: 131072
+                maxBytes:
+                  type: integer
+                  minimum: 1024
+                  maximum: 131072
+                  deprecated: true
+                mode:
+                  type: string
+                  enum:
+                  - auto
+                  - text
+                  - json
+                  default: auto
+                quote:
+                  type: string
+                  description: Compact signed quote returned by xguard.pricing.quote.
+              additionalProperties: true
+      responses:
+        '200':
+          description: Settled testnet result, signed receipt, and ProofRail evidence
+        '402':
+          description: Required Base Sepolia x402 challenge with automatically created signed quote
+      x-xguard-payment-flow:
+        price:
+          amount_atomic: '1000'
+          currency: USDC
+          decimals: 6
+        steps:
+        - 'POST https://api.xguardgate.com/v1/tools/web.fetch with {url: "https://example.com/"}'
+        - Read Payment-Required and X-XGuard-Quote from HTTP 402
+        - Sign Payment-Required with an official x402 v2 payer
+        - Retry the identical request with Payment-Signature and X-XGuard-Quote
+        - Verify Payment-Response, signed receipt, and ProofRail evidence on HTTP 200
+        standalone_quote_optional: https://api.xguardgate.com/v1/pricing/quote
+        settlement_before_execution: true
+        payment_required: true
+        network: eip155:84532
+      tags:
+      - Tools
+      operationId: postV1ToolsWebFetchTestnet
+      x-operation-id-source: derived

@@ -1,0 +1,199 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Egress…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Egress
+paths:
+  /v1/egress:
+    get:
+      summary: Discover XGuard Secretless Egress
+      responses:
+        '200':
+          description: Egress manifest
+      tags:
+      - Egress
+      operationId: getV1Egress
+      x-operation-id-source: derived
+  /v1/egress/credentials:
+    post:
+      summary: Store an encrypted upstream credential (operator only)
+      responses:
+        '201':
+          description: Credential metadata; secret is never returned
+        '401':
+          description: XGuard key required
+      tags:
+      - Egress
+      operationId: postV1EgressCredentials
+      x-operation-id-source: derived
+    get:
+      summary: List operator credential metadata
+      responses:
+        '200':
+          description: Credential metadata
+      tags:
+      - Egress
+      operationId: getV1EgressCredentials
+      x-operation-id-source: derived
+  /v1/egress/capabilities:
+    post:
+      summary: Issue a short-lived scoped capability for an agent
+      responses:
+        '201':
+          description: Scoped capability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - credential_id
+              properties:
+                credential_id:
+                  type: string
+                target_origin:
+                  type: string
+                  format: uri
+                path_prefix:
+                  type: string
+                allowed_methods:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - GET
+                    - HEAD
+                    - POST
+                    - PUT
+                    - PATCH
+                    - DELETE
+                ttl_seconds:
+                  type: integer
+                  minimum: 30
+                  maximum: 3600
+                max_calls:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000
+                max_total_credits:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000000
+                  description: XGuard gateway-credit budget; excludes provider charges
+                max_credits_per_call:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+      tags:
+      - Egress
+      operationId: postV1EgressCapabilities
+      x-operation-id-source: derived
+  /v1/egress/capabilities/{id}:
+    delete:
+      summary: Revoke a capability; already dispatched work may finish
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{32}$
+      - name: X-XGuard-Key
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Revoked
+        '403':
+          description: Not the capability owner
+      tags:
+      - Egress
+      operationId: deleteV1EgressCapabilitiesById
+      x-operation-id-source: derived
+  /v1/egress/fetch:
+    post:
+      summary: Execute one credential-backed outbound request using an XGuard capability
+      responses:
+        '200':
+          description: Upstream response
+        '401':
+          description: Capability required
+        '402':
+          description: Usage Credits required
+        '403':
+          description: Capability or credential scope denied
+        '409':
+          description: Request digest conflicts with the key, execution is in progress, or its outcome is unknown; do not use a new key to retry an uncertain write
+        '503':
+          description: Billing/decryption/network ambiguity; no automatic replay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - capability
+              - target
+              properties:
+                capability:
+                  type: string
+                  description: Short-lived XGuard capability issued by the operator.
+                target:
+                  type: string
+                  description: Public HTTPS URL within the capability scope.
+                method:
+                  type: string
+                  enum:
+                  - GET
+                  - HEAD
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                idempotency_key:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  pattern: ^[A-Za-z0-9_:.\-]+$
+                  description: Required for POST/PUT/PATCH/DELETE. Stable business-operation key; retry the exact same request with this key.
+                headers:
+                  type: object
+                  additionalProperties:
+                    type: string
+                body_json: {}
+                body_text:
+                  type: string
+                body_base64:
+                  type: string
+                content_type:
+                  type: string
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+        description: Same value as idempotency_key when both are provided
+      tags:
+      - Egress
+      operationId: postV1EgressFetch
+      x-operation-id-source: derived
+  /v1/egress/pricing:
+    get:
+      summary: Secretless Egress Usage Credit boundary
+      responses:
+        '200':
+          description: Billing contract
+      tags:
+      - Egress
+      operationId: getV1EgressPricing
+      x-operation-id-source: derived

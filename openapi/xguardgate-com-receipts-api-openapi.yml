@@ -1,0 +1,28 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Receipts
+paths:
+  /v1/receipts/{receipt_id}:
+    get:
+      summary: Read a durable XGuard settlement receipt
+      parameters:
+      - name: receipt_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Receipt
+        '404':
+          description: Not found
+      tags:
+      - Receipts
+      operationId: getV1ReceiptsByReceiptId
+      x-operation-id-source: derived

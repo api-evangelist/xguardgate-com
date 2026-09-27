@@ -1,0 +1,72 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Actions…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Actions
+paths:
+  /v1/actions:
+    get:
+      summary: Discover XGuard Action Rail
+      responses:
+        '200':
+          description: Action Rail manifest
+      tags:
+      - Actions
+      operationId: getV1Actions
+      x-operation-id-source: derived
+  /v1/actions/permits:
+    post:
+      summary: Prepare one signed single-use AI action permit
+      responses:
+        '201':
+          description: Signed action permit
+        '401':
+          description: XGuard key required
+        '402':
+          description: Usage Credits required
+        '428':
+          description: Scoped mandate required
+      tags:
+      - Actions
+      operationId: postV1ActionsPermits
+      x-operation-id-source: derived
+  /v1/actions/execute:
+    post:
+      summary: Execute the exact request bound to an XGuard action permit
+      responses:
+        '200':
+          description: Upstream response after controlled execution
+        '402':
+          description: Usage Credits required
+        '409':
+          description: Replay, state or binding conflict
+        '503':
+          description: Ambiguous outcome; fail closed
+      tags:
+      - Actions
+      operationId: postV1ActionsExecute
+      x-operation-id-source: derived
+  /v1/actions/pricing:
+    get:
+      summary: Action Rail Usage Credit billing boundary
+      responses:
+        '200':
+          description: Pricing metadata
+      tags:
+      - Actions
+      operationId: getV1ActionsPricing
+      x-operation-id-source: derived
+  /v1/actions/stats:
+    get:
+      summary: Action Rail execution and billing counters
+      responses:
+        '200':
+          description: Durable counters
+      tags:
+      - Actions
+      operationId: getV1ActionsStats
+      x-operation-id-source: derived

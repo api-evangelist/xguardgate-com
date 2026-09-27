@@ -1,0 +1,49 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Test API
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Test
+paths:
+  /v1/test:
+    post:
+      summary: Free Agent Transaction Safety Test across x402, MPP, AP2, UCP, ACP and MCP
+      description: Scores a supplied sample for retry safety, idempotency, context binding, replay uniqueness, freshness and auditability. The target is not contacted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target:
+                  type: string
+                method:
+                  type: string
+                headers:
+                  type: object
+                body: {}
+              required:
+              - target
+      responses:
+        '200':
+          description: 0–100 structural runtime-readiness report
+        '400':
+          description: Invalid sample
+      tags:
+      - Test
+      operationId: postV1Test
+      x-operation-id-source: derived
+  /v1/test/schema:
+    get:
+      summary: Describe the free Agent Transaction Safety Test
+      responses:
+        '200':
+          description: Test schema and supported protocols
+      tags:
+      - Test
+      operationId: getV1TestSchema
+      x-operation-id-source: derived

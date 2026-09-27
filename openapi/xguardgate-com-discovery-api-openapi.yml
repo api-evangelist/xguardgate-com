@@ -1,0 +1,30 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Discovery
+paths:
+  /discovery/resources:
+    get:
+      summary: List x402 Bazaar resources reachable through XGuard catalogs
+      responses:
+        '200':
+          description: Aggregated x402 discovery resources
+      tags:
+      - Discovery
+      operationId: getDiscoveryResources
+      x-operation-id-source: derived
+  /discovery/search:
+    get:
+      summary: Search x402 Bazaar resources reachable through XGuard
+      responses:
+        '200':
+          description: Aggregated x402 discovery search results
+      tags:
+      - Discovery
+      operationId: getDiscoverySearch
+      x-operation-id-source: derived

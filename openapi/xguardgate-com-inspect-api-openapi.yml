@@ -1,0 +1,36 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Inspect…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Inspect
+paths:
+  /v1/inspect:
+    post:
+      summary: Classify and policy-check an agent transaction without forwarding it
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target:
+                  type: string
+                method:
+                  type: string
+                headers:
+                  type: object
+                body: {}
+              required:
+              - target
+      responses:
+        '200':
+          description: Detected protocol and policy result
+      tags:
+      - Inspect
+      operationId: postV1Inspect
+      x-operation-id-source: derived

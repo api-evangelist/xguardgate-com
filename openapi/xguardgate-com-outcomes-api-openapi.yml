@@ -1,0 +1,447 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Outcomes
+  description: Primary intent execution
+paths:
+  /v1/execute:
+    post:
+      operationId: xguardExecute
+      tags:
+      - Outcomes
+      summary: Execute a public-source outcome
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                intent:
+                  oneOf:
+                  - type: string
+                    maxLength: 3000
+                  - type: object
+                  example: Get a technology news digest
+                capability:
+                  type: string
+                  enum:
+                  - extract-preview
+                  - web-extraction
+                  - product-offers
+                  - feed-digest
+                url:
+                  type: string
+                  format: uri
+                urls:
+                  type: array
+                  maxItems: 3
+                  items:
+                    type: string
+                    format: uri
+                sources:
+                  type: array
+                  maxItems: 3
+                  items:
+                    oneOf:
+                    - type: string
+                      format: uri
+                      pattern: ^https://
+                    - type: object
+                      required:
+                      - url
+                      properties:
+                        url:
+                          type: string
+                          format: uri
+                        fallbacks:
+                          type: array
+                          maxItems: 1
+                          items:
+                            type: string
+                            format: uri
+                      additionalProperties: false
+                action:
+                  type: string
+                desired_action:
+                  type: string
+                html:
+                  type: string
+                  maxLength: 12288
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 30
+                max_age_seconds:
+                  type: integer
+                  minimum: 0
+                  maximum: 60
+                  default: 0
+                query:
+                  type: string
+                  maxLength: 200
+                testnet:
+                  type: boolean
+                  default: false
+                input:
+                  type: object
+                arguments:
+                  oneOf:
+                  - type: object
+                  - type: string
+                    description: JSON-encoded object, as used by tool calls
+                name:
+                  type: string
+                tool:
+                  type: string
+                tool_id:
+                  type: string
+                toolId:
+                  type: string
+                function:
+                  type: object
+                  required:
+                  - name
+                  - arguments
+                  properties:
+                    name:
+                      type: string
+                    arguments:
+                      type:
+                      - string
+                      - object
+                  additionalProperties: false
+                type:
+                  const: function
+                quantity:
+                  const: 1
+                units:
+                  const: 1
+                requests:
+                  const: 1
+                calls:
+                  const: 1
+                network:
+                  type: string
+                  enum:
+                  - eip155:8453
+                  - eip155:84532
+                  - base
+                  - base-sepolia
+                operation:
+                  type: object
+                  description: Resolved read-only OpenAPI operation with URL, method and desired action; no remote spec fetching.
+                http:
+                  type: object
+                command:
+                  type: string
+                task:
+                  type: object
+              additionalProperties: false
+              description: Use intent:'demo' for a free result. Paid outcomes accept supported English/Arabic intents with public sources. Unknown jobs return repair guidance; this is not a general-purpose language model.
+              examples:
+              - intent: Get a technology news digest
+                limit: 10
+              anyOf:
+              - required:
+                - intent
+              - required:
+                - capability
+              - required:
+                - tool
+              - required:
+                - tool_id
+              - required:
+                - toolId
+              - required:
+                - name
+              - required:
+                - function
+              - required:
+                - html
+              - required:
+                - action
+              - required:
+                - desired_action
+              - required:
+                - command
+              - required:
+                - input
+              - required:
+                - arguments
+              - required:
+                - operation
+              - required:
+                - http
+              - required:
+                - task
+            example:
+              intent: Get a technology news digest
+              limit: 10
+      parameters:
+      - name: X-XGuard-Quote
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: Payment-Signature
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: X-XGuard-Credit
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Normalized outcome with integrity metadata and receipt
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - ok
+                - intent
+                - capability
+                - result
+                - verification
+                - cost
+                - receipt
+                properties:
+                  ok:
+                    const: true
+                  intent:
+                    type: object
+                  capability:
+                    type: string
+                  result:
+                    type: object
+                  verification:
+                    type: object
+                  cost:
+                    type: object
+                  receipt:
+                    type:
+                    - object
+                    - 'null'
+        '400':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '402':
+          description: Exact x402 payment requirement; preserve X-XGuard-Quote and retry identical input with Payment-Signature
+          headers:
+            Payment-Required:
+              schema:
+                type: string
+            X-XGuard-Quote:
+              schema:
+                type: string
+        '403':
+          description: Unsafe target or recovery credential
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '409':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '413':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '422':
+          description: Self-describing repair.suggested_request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '429':
+          description: Rate limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '500':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '502':
+          description: No usable source; execution credit retained
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '503':
+          description: Payment unavailable or settlement awaiting reconciliation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+      description: Live public-source work requires x402 payment at the exact quoted price. The supplied-HTML preview (intent:demo) is free. An unsigned request only returns a price; it does not fetch sources or settle payment.
+      x-payment-info:
+        protocols:
+        - x402: {}
+        price:
+          mode: dynamic
+          currency: USD
+          min: '0'
+          max: '0.006000'
+  /v1/capabilities:
+    get:
+      tags:
+      - Outcomes
+      summary: List executable outcomes and exact pricing
+      responses:
+        '200':
+          description: Capabilities with input/output schemas and examples
+      operationId: getV1Capabilities
+      x-operation-id-source: derived
+  /v1/pricing:
+    get:
+      tags:
+      - Outcomes
+      responses:
+        '200':
+          description: Exact per-execution outcome pricing
+      summary: Get pricing
+      x-summary-source: derived
+      operationId: getV1Pricing
+      x-operation-id-source: derived
+  /v1/capabilities/{id}:
+    get:
+      tags:
+      - Outcomes
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Executable capability
+        '404':
+          description: Unavailable with alternatives
+      summary: Get capabilities by id
+      x-summary-source: derived
+      operationId: getV1CapabilitiesById
+      x-operation-id-source: derived
+  /v1/results/{payment_identifier}:
+    get:
+      tags:
+      - Outcomes
+      parameters:
+      - in: path
+        name: payment_identifier
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-XGuard-Quote
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Normalized outcome with integrity metadata and receipt
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - ok
+                - intent
+                - capability
+                - result
+                - verification
+                - cost
+                - receipt
+                properties:
+                  ok:
+                    const: true
+                  intent:
+                    type: object
+                  capability:
+                    type: string
+                  result:
+                    type: object
+                  verification:
+                    type: object
+                  cost:
+                    type: object
+                  receipt:
+                    type:
+                    - object
+                    - 'null'
+        '202':
+          description: Pending or credited operation; no reexecution
+        '403':
+          description: Unsafe target or recovery credential
+        '404':
+          description: Unknown operation
+      summary: Get results by payment identifier
+      x-summary-source: derived
+      operationId: getV1ResultsByPaymentIdentifier
+      x-operation-id-source: derived
+components:
+  schemas:
+    PublicError:
+      type: object
+      required:
+      - ok
+      - error
+      - error_code
+      - request_id
+      - next
+      properties:
+        ok:
+          const: false
+        error_code:
+          type: string
+        request_id:
+          type: string
+        next:
+          type: object
+        error:
+          type: object
+          required:
+          - code
+          - message
+          - retryable
+          - docs
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            field:
+              type: string
+            required_fields:
+              type: array
+              items:
+                type: string
+            retryable:
+              type: boolean
+            docs:
+              type: string
+              format: uri
+            example:
+              type: object

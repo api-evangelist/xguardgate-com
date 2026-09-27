@@ -1,0 +1,22 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Ready…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Ready
+paths:
+  /v1/ready:
+    get:
+      summary: Dependency readiness probe
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Dependency unavailable
+      tags:
+      - Ready
+      operationId: getV1Ready
+      x-operation-id-source: derived

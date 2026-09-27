@@ -1,0 +1,24 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Payment…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Payment
+paths:
+  /v1/payment/readiness:
+    get:
+      summary: Inspect production and test payment readiness without exposing secrets
+      responses:
+        '200':
+          description: Machine-readable rail configuration and facilitator reachability
+          content:
+            application/json:
+              schema:
+                type: object
+      tags:
+      - Payment
+      operationId: getV1PaymentReadiness
+      x-operation-id-source: derived

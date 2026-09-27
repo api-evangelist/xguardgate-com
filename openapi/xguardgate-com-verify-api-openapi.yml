@@ -1,0 +1,122 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Verify…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Verify
+paths:
+  /verify:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - paymentPayload
+              - paymentRequirements
+              properties:
+                x402Version:
+                  const: 2
+                paymentPayload:
+                  type: object
+                  required:
+                  - x402Version
+                  - accepted
+                  - payload
+                  properties:
+                    x402Version:
+                      const: 2
+                    accepted:
+                      type: object
+                    payload:
+                      type: object
+                paymentRequirements:
+                  type: object
+                  required:
+                  - scheme
+                  - network
+                  - asset
+                  - payTo
+                  - amount
+      summary: Firewall-check and verify an x402 payment payload
+      responses:
+        '200':
+          description: Verification result
+        '400':
+          description: Blocked by XGuard payment firewall
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '413':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '429':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+        '503':
+          description: Request rejected with repair instructions; no automatic retry of ambiguous settlement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicError'
+      description: Send the full x402 v2 paymentPayload and paymentRequirements on each request. payment_payload/payment and payment_requirements/requirements are accepted aliases; an encoded Payment-Signature value may supply the payload. Conflicting aliases are rejected. A prior verification response or client trust flag cannot authorize settlement.
+      tags:
+      - Verify
+      operationId: postVerify
+      x-operation-id-source: derived
+components:
+  schemas:
+    PublicError:
+      type: object
+      required:
+      - ok
+      - error
+      - error_code
+      - request_id
+      - next
+      properties:
+        ok:
+          const: false
+        error_code:
+          type: string
+        request_id:
+          type: string
+        next:
+          type: object
+        error:
+          type: object
+          required:
+          - code
+          - message
+          - retryable
+          - docs
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            field:
+              type: string
+            required_fields:
+              type: array
+              items:
+                type: string
+            retryable:
+              type: boolean
+            docs:
+              type: string
+              format: uri
+            example:
+              type: object

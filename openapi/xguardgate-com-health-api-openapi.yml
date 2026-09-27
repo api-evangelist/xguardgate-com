@@ -1,0 +1,20 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Health…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Health
+paths:
+  /v1/health:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Worker is live
+      tags:
+      - Health
+      operationId: getV1Health
+      x-operation-id-source: derived

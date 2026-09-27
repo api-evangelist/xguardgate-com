@@ -1,0 +1,33 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Proofs…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Proofs
+paths:
+  /v1/proofs/verify:
+    post:
+      summary: Verify a ProofRail compact proof
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - proof
+              properties:
+                proof:
+                  type: string
+      responses:
+        '200':
+          description: Proof validity and signed claims
+        '400':
+          description: Malformed proof
+      tags:
+      - Proofs
+      operationId: postV1ProofsVerify
+      x-operation-id-source: derived

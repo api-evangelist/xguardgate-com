@@ -1,0 +1,20 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Openapi.yaml
+paths:
+  /openapi.yaml:
+    get:
+      summary: Canonical discovery alias
+      responses:
+        '308':
+          description: Follow Location to the canonical representation
+      tags:
+      - Openapi.yaml
+      operationId: getOpenapiYaml
+      x-operation-id-source: derived

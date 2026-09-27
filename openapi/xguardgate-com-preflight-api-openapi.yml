@@ -1,0 +1,1178 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Preflight
+paths:
+  /v1/preflight:
+    get:
+      summary: Describe the free guarded-request preflight
+      responses:
+        '200':
+          description: Preflight schema and exact next steps
+          content:
+            application/json:
+              schema:
+                type: object
+      tags:
+      - Preflight
+      operationId: getV1Preflight
+      x-operation-id-source: derived
+    post:
+      summary: Preflight a guarded paid request without contacting the target
+      description: Free and read-only. Validates the normalized public HTTPS target, SSRF policy, trusted public DNS and payment readiness. On allow, call /v1/tools/web.fetch directly for an automatically quoted mandatory x402 v2 flow.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                anyOf:
+                - required:
+                  - url
+                - required:
+                  - target_url
+                - required:
+                  - targetUrl
+                - required:
+                  - uri
+                - required:
+                  - target
+                - required:
+                  - resource
+                - required:
+                  - endpoint
+                - required:
+                  - href
+                - required:
+                  - curl
+                - required:
+                  - command
+                - required:
+                  - operation
+                - required:
+                  - action
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    description: Canonical public HTTPS target URL.
+                  target_url:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  targetUrl:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  uri:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  target:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  resource:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  endpoint:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  href:
+                    type: string
+                    format: uri
+                    pattern: ^https://
+                    deprecated: true
+                    description: Accepted alias for url.
+                  curl:
+                    type: string
+                    description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                  command:
+                    type: string
+                    description: Alias for curl.
+                  operation:
+                    oneOf:
+                    - type: string
+                    - type: object
+                    description: OpenAPI/MCP-style operation envelope.
+                  action:
+                    oneOf:
+                    - type: string
+                    - type: object
+                    description: Action envelope.
+                  method:
+                    type: string
+                    enum:
+                    - GET
+                    - HEAD
+                    default: GET
+                  timeout_ms:
+                    type: integer
+                    minimum: 1000
+                    maximum: 10000
+                    default: 8000
+                  timeoutMs:
+                    type: integer
+                    minimum: 1000
+                    maximum: 10000
+                    deprecated: true
+                  max_bytes:
+                    type: integer
+                    minimum: 1024
+                    maximum: 131072
+                    default: 131072
+                  maxBytes:
+                    type: integer
+                    minimum: 1024
+                    maximum: 131072
+                    deprecated: true
+                  mode:
+                    type: string
+                    enum:
+                    - auto
+                    - text
+                    - json
+                    default: auto
+                  testnet:
+                    type: boolean
+                    default: false
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              - type: object
+                required:
+                - input
+                properties:
+                  tool:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  toolName:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  tool_name:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  capability:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  capability_id:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  capabilityId:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  input:
+                    type: object
+                    anyOf:
+                    - required:
+                      - url
+                    - required:
+                      - target_url
+                    - required:
+                      - targetUrl
+                    - required:
+                      - uri
+                    - required:
+                      - target
+                    - required:
+                      - resource
+                    - required:
+                      - endpoint
+                    - required:
+                      - href
+                    - required:
+                      - curl
+                    - required:
+                      - command
+                    - required:
+                      - operation
+                    - required:
+                      - action
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        description: Canonical public HTTPS target URL.
+                      target_url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      targetUrl:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      uri:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      target:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      resource:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      endpoint:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      href:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      curl:
+                        type: string
+                        description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                      command:
+                        type: string
+                        description: Alias for curl.
+                      operation:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: OpenAPI/MCP-style operation envelope.
+                      action:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: Action envelope.
+                      method:
+                        type: string
+                        enum:
+                        - GET
+                        - HEAD
+                        default: GET
+                      timeout_ms:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        default: 8000
+                      timeoutMs:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        deprecated: true
+                      max_bytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        default: 131072
+                      maxBytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        deprecated: true
+                      mode:
+                        type: string
+                        enum:
+                        - auto
+                        - text
+                        - json
+                        default: auto
+                      testnet:
+                        type: boolean
+                        default: false
+                      network:
+                        type: string
+                        enum:
+                        - eip155:8453
+                        - eip155:84532
+                        - base
+                        - base-mainnet
+                        - base-sepolia
+                        - mainnet
+                        - testnet
+                    additionalProperties: true
+                  testnet:
+                    type: boolean
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              - type: object
+                required:
+                - capability
+                - input
+                properties:
+                  capability:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  capability_id:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  capabilityId:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  input:
+                    type: object
+                    anyOf:
+                    - required:
+                      - url
+                    - required:
+                      - target_url
+                    - required:
+                      - targetUrl
+                    - required:
+                      - uri
+                    - required:
+                      - target
+                    - required:
+                      - resource
+                    - required:
+                      - endpoint
+                    - required:
+                      - href
+                    - required:
+                      - curl
+                    - required:
+                      - command
+                    - required:
+                      - operation
+                    - required:
+                      - action
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        description: Canonical public HTTPS target URL.
+                      target_url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      targetUrl:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      uri:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      target:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      resource:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      endpoint:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      href:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      curl:
+                        type: string
+                        description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                      command:
+                        type: string
+                        description: Alias for curl.
+                      operation:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: OpenAPI/MCP-style operation envelope.
+                      action:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: Action envelope.
+                      method:
+                        type: string
+                        enum:
+                        - GET
+                        - HEAD
+                        default: GET
+                      timeout_ms:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        default: 8000
+                      timeoutMs:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        deprecated: true
+                      max_bytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        default: 131072
+                      maxBytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        deprecated: true
+                      mode:
+                        type: string
+                        enum:
+                        - auto
+                        - text
+                        - json
+                        default: auto
+                      testnet:
+                        type: boolean
+                        default: false
+                      network:
+                        type: string
+                        enum:
+                        - eip155:8453
+                        - eip155:84532
+                        - base
+                        - base-mainnet
+                        - base-sepolia
+                        - mainnet
+                        - testnet
+                    additionalProperties: true
+                  testnet:
+                    type: boolean
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              - type: object
+                required:
+                - name
+                - arguments
+                properties:
+                  name:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  arguments:
+                    oneOf:
+                    - type: object
+                      anyOf:
+                      - required:
+                        - url
+                      - required:
+                        - target_url
+                      - required:
+                        - targetUrl
+                      - required:
+                        - uri
+                      - required:
+                        - target
+                      - required:
+                        - resource
+                      - required:
+                        - endpoint
+                      - required:
+                        - href
+                      - required:
+                        - curl
+                      - required:
+                        - command
+                      - required:
+                        - operation
+                      - required:
+                        - action
+                      properties:
+                        url:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          description: Canonical public HTTPS target URL.
+                        target_url:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        targetUrl:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        uri:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        target:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        resource:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        endpoint:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        href:
+                          type: string
+                          format: uri
+                          pattern: ^https://
+                          deprecated: true
+                          description: Accepted alias for url.
+                        curl:
+                          type: string
+                          description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                        command:
+                          type: string
+                          description: Alias for curl.
+                        operation:
+                          oneOf:
+                          - type: string
+                          - type: object
+                          description: OpenAPI/MCP-style operation envelope.
+                        action:
+                          oneOf:
+                          - type: string
+                          - type: object
+                          description: Action envelope.
+                        method:
+                          type: string
+                          enum:
+                          - GET
+                          - HEAD
+                          default: GET
+                        timeout_ms:
+                          type: integer
+                          minimum: 1000
+                          maximum: 10000
+                          default: 8000
+                        timeoutMs:
+                          type: integer
+                          minimum: 1000
+                          maximum: 10000
+                          deprecated: true
+                        max_bytes:
+                          type: integer
+                          minimum: 1024
+                          maximum: 131072
+                          default: 131072
+                        maxBytes:
+                          type: integer
+                          minimum: 1024
+                          maximum: 131072
+                          deprecated: true
+                        mode:
+                          type: string
+                          enum:
+                          - auto
+                          - text
+                          - json
+                          default: auto
+                        testnet:
+                          type: boolean
+                          default: false
+                        network:
+                          type: string
+                          enum:
+                          - eip155:8453
+                          - eip155:84532
+                          - base
+                          - base-mainnet
+                          - base-sepolia
+                          - mainnet
+                          - testnet
+                      additionalProperties: true
+                    - type: string
+                      contentMediaType: application/json
+                  testnet:
+                    type: boolean
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              - type: object
+                required:
+                - tool_name
+                - parameters
+                properties:
+                  tool_name:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  toolName:
+                    type: string
+                    enum:
+                    - xguard.web.fetch
+                    - web.fetch
+                    - fetch
+                    - xguard_web_fetch
+                  parameters:
+                    type: object
+                    anyOf:
+                    - required:
+                      - url
+                    - required:
+                      - target_url
+                    - required:
+                      - targetUrl
+                    - required:
+                      - uri
+                    - required:
+                      - target
+                    - required:
+                      - resource
+                    - required:
+                      - endpoint
+                    - required:
+                      - href
+                    - required:
+                      - curl
+                    - required:
+                      - command
+                    - required:
+                      - operation
+                    - required:
+                      - action
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        description: Canonical public HTTPS target URL.
+                      target_url:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      targetUrl:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      uri:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      target:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      resource:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      endpoint:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      href:
+                        type: string
+                        format: uri
+                        pattern: ^https://
+                        deprecated: true
+                        description: Accepted alias for url.
+                      curl:
+                        type: string
+                        description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                      command:
+                        type: string
+                        description: Alias for curl.
+                      operation:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: OpenAPI/MCP-style operation envelope.
+                      action:
+                        oneOf:
+                        - type: string
+                        - type: object
+                        description: Action envelope.
+                      method:
+                        type: string
+                        enum:
+                        - GET
+                        - HEAD
+                        default: GET
+                      timeout_ms:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        default: 8000
+                      timeoutMs:
+                        type: integer
+                        minimum: 1000
+                        maximum: 10000
+                        deprecated: true
+                      max_bytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        default: 131072
+                      maxBytes:
+                        type: integer
+                        minimum: 1024
+                        maximum: 131072
+                        deprecated: true
+                      mode:
+                        type: string
+                        enum:
+                        - auto
+                        - text
+                        - json
+                        default: auto
+                      testnet:
+                        type: boolean
+                        default: false
+                      network:
+                        type: string
+                        enum:
+                        - eip155:8453
+                        - eip155:84532
+                        - base
+                        - base-mainnet
+                        - base-sepolia
+                        - mainnet
+                        - testnet
+                    additionalProperties: true
+                  testnet:
+                    type: boolean
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              - type: object
+                required:
+                - function
+                properties:
+                  function:
+                    type: object
+                    required:
+                    - name
+                    - arguments
+                    properties:
+                      name:
+                        type: string
+                        enum:
+                        - xguard.web.fetch
+                        - web.fetch
+                        - fetch
+                        - xguard_web_fetch
+                      arguments:
+                        oneOf:
+                        - type: object
+                          anyOf:
+                          - required:
+                            - url
+                          - required:
+                            - target_url
+                          - required:
+                            - targetUrl
+                          - required:
+                            - uri
+                          - required:
+                            - target
+                          - required:
+                            - resource
+                          - required:
+                            - endpoint
+                          - required:
+                            - href
+                          - required:
+                            - curl
+                          - required:
+                            - command
+                          - required:
+                            - operation
+                          - required:
+                            - action
+                          properties:
+                            url:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              description: Canonical public HTTPS target URL.
+                            target_url:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            targetUrl:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            uri:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            target:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            resource:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            endpoint:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            href:
+                              type: string
+                              format: uri
+                              pattern: ^https://
+                              deprecated: true
+                              description: Accepted alias for url.
+                            curl:
+                              type: string
+                              description: One deterministic curl GET/HEAD command containing one absolute HTTPS URL.
+                            command:
+                              type: string
+                              description: Alias for curl.
+                            operation:
+                              oneOf:
+                              - type: string
+                              - type: object
+                              description: OpenAPI/MCP-style operation envelope.
+                            action:
+                              oneOf:
+                              - type: string
+                              - type: object
+                              description: Action envelope.
+                            method:
+                              type: string
+                              enum:
+                              - GET
+                              - HEAD
+                              default: GET
+                            timeout_ms:
+                              type: integer
+                              minimum: 1000
+                              maximum: 10000
+                              default: 8000
+                            timeoutMs:
+                              type: integer
+                              minimum: 1000
+                              maximum: 10000
+                              deprecated: true
+                            max_bytes:
+                              type: integer
+                              minimum: 1024
+                              maximum: 131072
+                              default: 131072
+                            maxBytes:
+                              type: integer
+                              minimum: 1024
+                              maximum: 131072
+                              deprecated: true
+                            mode:
+                              type: string
+                              enum:
+                              - auto
+                              - text
+                              - json
+                              default: auto
+                            testnet:
+                              type: boolean
+                              default: false
+                            network:
+                              type: string
+                              enum:
+                              - eip155:8453
+                              - eip155:84532
+                              - base
+                              - base-mainnet
+                              - base-sepolia
+                              - mainnet
+                              - testnet
+                          additionalProperties: true
+                        - type: string
+                          contentMediaType: application/json
+                    additionalProperties: true
+                  testnet:
+                    type: boolean
+                  network:
+                    type: string
+                    enum:
+                    - eip155:8453
+                    - eip155:84532
+                    - base
+                    - base-mainnet
+                    - base-sepolia
+                    - mainnet
+                    - testnet
+                additionalProperties: true
+              description: Canonical form is a flat object with url. Explicitly supported agent envelopes are documented in x-xguard-accepted-shapes.
+              x-xguard-accepted-shapes:
+              - name: canonical_flat
+                example:
+                  url: https://example.com/
+                  method: GET
+                  testnet: true
+              - name: tool_input
+                example:
+                  tool: xguard.web.fetch
+                  input:
+                    url: https://example.com/
+                    method: GET
+                  testnet: true
+              - name: mcp_arguments
+                example:
+                  name: xguard.web.fetch
+                  arguments:
+                    url: https://example.com/
+                    method: GET
+                  testnet: true
+              - name: tool_parameters
+                example:
+                  tool_name: xguard.web.fetch
+                  parameters:
+                    url: https://example.com/
+                    method: GET
+                  network: eip155:84532
+              - name: function_call
+                example:
+                  function:
+                    name: xguard.web.fetch
+                    arguments: '{"url":"https://example.com/","method":"GET"}'
+                  testnet: true
+              - name: curl_command
+                example:
+                  command: curl https://example.com/
+                  testnet: true
+              - name: operation_object
+                example:
+                  operation:
+                    name: xguard.web.fetch
+                    arguments:
+                      endpoint: https://example.com/
+                      method: GET
+                  testnet: true
+            examples:
+              canonical_flat:
+                value:
+                  url: https://example.com/
+                  method: GET
+                  testnet: true
+              tool_input:
+                value:
+                  tool: xguard.web.fetch
+                  input:
+                    url: https://example.com/
+                    method: GET
+                  testnet: true
+              mcp_arguments:
+                value:
+                  name: xguard.web.fetch
+                  arguments:
+                    url: https://example.com/
+                    method: GET
+                  testnet: true
+              tool_parameters:
+                value:
+                  tool_name: xguard.web.fetch
+                  parameters:
+                    url: https://example.com/
+                    method: GET
+                  network: eip155:84532
+              function_call:
+                value:
+                  function:
+                    name: xguard.web.fetch
+                    arguments: '{"url":"https://example.com/","method":"GET"}'
+                  testnet: true
+              curl_command:
+                value:
+                  command: curl https://example.com/
+                  testnet: true
+              operation_object:
+                value:
+                  operation:
+                    name: xguard.web.fetch
+                    arguments:
+                      endpoint: https://example.com/
+                      method: GET
+                  testnet: true
+      responses:
+        '200':
+          description: Target is safe to quote; no upstream request was made
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Machine-readable input error with retry guidance
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Target is blocked by public HTTPS or SSRF policy
+          content:
+            application/json:
+              schema:
+                type: object
+        '422':
+          description: Hostname has no public DNS address
+          content:
+            application/json:
+              schema:
+                type: object
+        '503':
+          description: Trusted DNS or payment path temporarily unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+      tags:
+      - Preflight
+      operationId: postV1Preflight
+      x-operation-id-source: derived

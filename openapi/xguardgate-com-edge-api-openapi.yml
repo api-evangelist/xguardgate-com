@@ -1,0 +1,35 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Edge API
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Edge
+paths:
+  /edge/{merchant-host}/{path}:
+    parameters:
+    - name: merchant-host
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: path
+      in: path
+      required: true
+      schema:
+        type: string
+    post:
+      summary: Proxy a DNS-authorized merchant transaction through XGuard
+      responses:
+        '200':
+          description: Upstream response
+        '402':
+          description: Usage credits required
+        '403':
+          description: Merchant hostname has not authorized XGuard Edge
+      tags:
+      - Edge
+      operationId: postEdgeByMerchantHostByPath
+      x-operation-id-source: derived

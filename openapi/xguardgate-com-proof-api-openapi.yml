@@ -1,0 +1,21 @@
+openapi: 3.2.0
+info:
+  title: XGuard Universal Paid AI Agent + Secretless Gateway Proof…
+  version: 5.1.0
+  description: Describe a supported outcome. Receive normalized results or an exact x402 price, then authorize and retry the same request. Start with intent:demo for free.
+servers:
+- url: https://api.xguardgate.com
+tags:
+- name: Proof
+paths:
+  /v1/proof:
+    get:
+      summary: Discover XGuard ProofRail
+      description: Returns the signed execution-evidence contract, verification endpoint and public-key URL.
+      responses:
+        '200':
+          description: ProofRail discovery metadata
+      tags:
+      - Proof
+      operationId: getV1Proof
+      x-operation-id-source: derived

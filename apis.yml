@@ -16,6 +16,22 @@ description: >-
   /.well-known/agent-card.json, an OpenAI plugin manifest, llms.txt and a set of x402 payment, egress and
   action manifests; a companion x402 settlement-reconciliation API runs at reconcile.xguardgate.com.
 url: https://raw.githubusercontent.com/api-evangelist/xguardgate-com/refs/heads/main/apis.yml
+deliveryModel:
+  model: unknown
+  license_evidence:
+    repo: moelayyan90/xguard
+    spdx: NOASSERTION
+    stars: 0
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - pricing
+  - repository-unlicensed
+  generated: '2026-09-25'
+  method: derived
 image: https://xguardgate.com/logo.svg
 x-type: company
 x-source: harvest:a2a-registry
@@ -36,7 +52,7 @@ tags:
 - Credential Broker
 - API Gateway
 - Agent Security
-- agent-native
+- Agent-Native
 tags_raw:
 - Agents
 - Agent commerce
@@ -51,62 +67,26 @@ tags_raw:
 - Agent security
 - Agent-native
 - Agent Commerce
+- agent-native
 apis:
-- aid: xguardgate-com:xguard-universal-paid-agent-api
-  name: XGuard Universal Paid AI Agent + Secretless Gateway API
-  description: >-
-    The REST surface behind every XGuard product, published as OpenAPI 3.1.0 (info.version 5.1.0, 47 paths,
-    49 operations, servers[] https://api.xguardgate.com) at https://api.xguardgate.com/openapi.json. The
-    Outcomes group is the canonical product: POST /v1/execute (operationId xguardExecute) takes an intent
-    plus up to three public URLs, returns a free result for intent:demo or supplied HTML, and otherwise
-    answers HTTP 402 with a Payment-Required header, a signed five-minute X-XGuard-Quote and an exact USDC
-    price; a funded x402 v2 client signs and retries the identical body, and GET /v1/results/{payment_identifier}
-    recovers a paid outcome with the original quote. The contract also carries the x402 facilitator relay
-    (/supported, /verify, /settle, /discovery/*), the compatible paid xguard.web.fetch tool with a Base
-    Sepolia testnet twin, the Secretless Egress operator and agent endpoints under /v1/egress/*, the Action
-    Rail permit/execute pair under /v1/actions/*, the free ATS-100 transaction-safety test, ProofRail proof
-    verification and health/readiness probes. Only one operation declares an operationId and no
-    securitySchemes are declared; credentials are documented as headers (X-XGuard-Key, Payment-Signature,
-    X-XGuard-Quote, X-XGuard-Credit) and a scoped capability token instead.
-  humanURL: https://xguardgate.com/developers
-  baseURL: https://api.xguardgate.com
-  tags:
-  - Agents
-  - x402
-  - Web Extraction
-  - Feed Aggregation
-  - Credential Broker
-  - Micropayments
-  properties:
-  - type: OpenAPI
-    url: openapi/xguardgate-com-openapi.json
-  - type: OpenAPI
-    name: XGuard OpenAPI 3.1.0 (provider-hosted)
-    url: https://api.xguardgate.com/openapi.json
-  - type: Documentation
-    url: https://xguardgate.com/developers
-  - type: APIReference
-    url: https://api.xguardgate.com/openapi.json
-  - type: Overlay
-    url: overlays/xguardgate-com-openapi-overlay.yaml
 - aid: xguardgate-com:xguard-mcp-server
   name: XGuard MCP Server
   description: >-
-    Remote Model Context Protocol server at https://api.xguardgate.com/mcp (Streamable HTTP, protocol version
-    2026-07-28, serverInfo xguard-universal-paid-secretless-gateway 5.1.0). initialize and tools/list answer
-    anonymously with three tools that carry real inputSchemas and annotations: xguard_discover (free catalog
-    and prices), xguard_execute (the paid-outcome chokepoint; a paid call returns an isError tool result with
-    the x402 PaymentRequired challenge in structuredContent and is retried with params._meta["x402/payment"])
-    and xguard_get_result (recover a paid outcome by payment identifier and quote). Registered in the official
-    MCP Registry as io.github.moelayyan90/xguard-control-plane; ready-to-paste Cursor, VS Code, Claude Code and
-    Codex configurations are published at xguardgate.com/install/. No OAuth: RFC 9728 metadata at
-    /.well-known/oauth-protected-resource/mcp states bearer_methods_supported is empty and that paid tools are
-    gated by x402 payment rather than an account.
+    Remote Model Context Protocol server at https://api.xguardgate.com/mcp (Streamable HTTP, protocol
+    version 2026-07-28, serverInfo xguard-universal-paid-secretless-gateway 5.1.0). initialize and tools/list
+    answer anonymously with three tools that carry real inputSchemas and annotations: xguard_discover
+    (free catalog and prices), xguard_execute (the paid-outcome chokepoint; a paid call returns an isError
+    tool result with the x402 PaymentRequired challenge in structuredContent and is retried with params._meta["x402/payment"])
+    and xguard_get_result (recover a paid outcome by payment identifier and quote). Registered in the
+    official MCP Registry as io.github.moelayyan90/xguard-control-plane; ready-to-paste Cursor, VS Code,
+    Claude Code and Codex configurations are published at xguardgate.com/install/. No OAuth: RFC 9728
+    metadata at /.well-known/oauth-protected-resource/mcp states bearer_methods_supported is empty and
+    that paid tools are gated by x402 payment rather than an account.
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com/mcp
   tags:
   - MCP
-  - agent-native
+  - Agent-Native
   - Agentic Commerce
   tags_raw:
   - MCP
@@ -126,17 +106,21 @@ apis:
   name: XGuard A2A Agent
   description: >-
     Agent2Agent surface: an agent card served identically from https://api.xguardgate.com/.well-known/agent-card.json
-    (the canonical location named in the provider's own xguard.json manifest) and from xguardgate.com, at both
-    the A2A 1.0 path and the legacy /.well-known/agent.json path, as application/a2a+json. The card (version
-    5.1.0) declares one JSONRPC interface at https://api.xguardgate.com/a2a with protocolVersion 1.0.0, four
-    skills that mirror the four REST outcomes (extract-preview, web-extraction, product-offers, feed-digest),
-    an x402 v2 paid-execution extension pointing at the payment manifest, and streaming, push notifications and
-    extended card all false. The JSON-RPC endpoint answers a GET with the card itself plus a discovery block, and
-    answers every other JSON-RPC method (tasks/get, agent/getAuthenticatedExtendedCard) with A2A error -32004
-    Unsupported operation naming SendMessage as the only operation it implements.
+    (the canonical location named in the provider's own xguard.json manifest) and from xguardgate.com,
+    at both the A2A 1.0 path and the legacy /.well-known/agent.json path, as application/a2a+json. The
+    card (version 5.1.0) declares one JSONRPC interface at https://api.xguardgate.com/a2a with protocolVersion
+    1.0.0, four skills that mirror the four REST outcomes (extract-preview, web-extraction, product-offers,
+    feed-digest), an x402 v2 paid-execution extension pointing at the payment manifest, and streaming,
+    push notifications and extended card all false. The JSON-RPC endpoint answers a GET with the card
+    itself plus a discovery block, and answers every other JSON-RPC method (tasks/get, agent/getAuthenticatedExtendedCard)
+    with A2A error -32004 Unsupported operation naming SendMessage as the only operation it implements.
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com/a2a
   tags:
+  - A2A
+  - Agent-Native
+  - x402
+  tags_raw:
   - A2A
   - agent-native
   - x402
@@ -146,30 +130,506 @@ apis:
   - type: AgentCard
     name: A2A Agent Card (provider-hosted, canonical)
     url: https://api.xguardgate.com/.well-known/agent-card.json
-- aid: xguardgate-com:xguard-reconcile-api
-  name: XGuard Reconcile API
-  description: >-
-    A one-operation companion service at https://reconcile.xguardgate.com that resolves ambiguous x402 Base
-    USDC settlements after a facilitator timeout: GET /v1/reconcile?from=0x...&nonce=0x... checks the EIP-3009
-    authorization state and AuthorizationUsed logs and reports whether the nonce was consumed and, when
-    observable, the settlement transaction hash. Published as OpenAPI 3.1.0 (info.title "XGuard Reconcile",
-    version 1.2.0) with an x-payment-info extension declaring the price ($0.002 USDC, exact scheme, eip155:8453);
-    the same terms appear in the host's /.well-known/x402.json discovery document and llms.txt. Non-custodial;
-    never needs a private key.
-  humanURL: https://reconcile.xguardgate.com/
-  baseURL: https://reconcile.xguardgate.com
+- aid: xguardgate-com:xguardgate-com-actions-api
+  name: XGuard Actions API
+  description: The Actions API from XGuard — 5 operation(s) for actions.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
   tags:
-  - x402
-  - Payments
-  - Reconciliation
+  - Actions
   properties:
   - type: OpenAPI
-    url: openapi/xguardgate-com-reconcile-openapi.json
+    url: openapi/xguardgate-com-actions-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-agent-card-json-api
+  name: XGuard Agent Card.json API
+  description: The Agent Card.json API from XGuard — 1 operation(s) for agent card.json.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Agent Card.json
+  properties:
   - type: OpenAPI
-    name: XGuard Reconcile OpenAPI 3.1.0 (provider-hosted)
-    url: https://reconcile.xguardgate.com/openapi.json
-  - type: Overlay
-    url: overlays/xguardgate-com-reconcile-openapi-overlay.yaml
+    url: openapi/xguardgate-com-agent-card-json-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-discovery-api
+  name: XGuard Discovery API
+  description: The Discovery API from XGuard — 2 operation(s) for discovery.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Discovery
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-discovery-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-edge-api
+  name: XGuard Edge API
+  description: The Edge API from XGuard — 1 operation(s) for edge.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Edge
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-edge-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-egress-api
+  name: XGuard Egress API
+  description: The Egress API from XGuard — 6 operation(s) for egress.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Egress
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-egress-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-facilitator-api
+  name: XGuard Facilitator API
+  description: The Facilitator API from XGuard — 2 operation(s) for facilitator.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Facilitator
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-facilitator-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-health-api
+  name: XGuard Health API
+  description: The Health API from XGuard — 1 operation(s) for health.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-health-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-healthz-api
+  name: XGuard Healthz API
+  description: The Healthz API from XGuard — 1 operation(s) for healthz.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Healthz
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-healthz-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-inspect-api
+  name: XGuard Inspect API
+  description: The Inspect API from XGuard — 1 operation(s) for inspect.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Inspect
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-inspect-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-metrics-api
+  name: XGuard Metrics API
+  description: The Metrics API from XGuard — 1 operation(s) for metrics.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Metrics
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-metrics-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-openapi-yaml-api
+  name: XGuard Openapi.yaml API
+  description: The Openapi.yaml API from XGuard — 1 operation(s) for openapi.yaml.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Openapi.yaml
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-openapi-yaml-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-operations-api
+  name: XGuard Operations API
+  description: The Operations API from XGuard — 1 operation(s) for operations.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Operations
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-operations-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-outcomes-api
+  name: XGuard Outcomes API
+  description: Primary intent execution
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Outcomes
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-outcomes-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-payment-api
+  name: XGuard Payment API
+  description: The Payment API from XGuard — 1 operation(s) for payment.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Payment
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-payment-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-preflight-api
+  name: XGuard Preflight API
+  description: The Preflight API from XGuard — 1 operation(s) for preflight.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Preflight
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-preflight-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-pricing-api
+  name: XGuard Pricing API
+  description: The Pricing API from XGuard — 2 operation(s) for pricing.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Pricing
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-pricing-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-proof-api
+  name: XGuard Proof API
+  description: The Proof API from XGuard — 1 operation(s) for proof.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Proof
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-proof-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-proofs-api
+  name: XGuard Proofs API
+  description: The Proofs API from XGuard — 1 operation(s) for proofs.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Proofs
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-proofs-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-protocols-api
+  name: XGuard Protocols API
+  description: The Protocols API from XGuard — 1 operation(s) for protocols.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Protocols
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-protocols-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-ready-api
+  name: XGuard Ready API
+  description: The Ready API from XGuard — 1 operation(s) for ready.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Ready
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-ready-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-receipts-api
+  name: XGuard Receipts API
+  description: The Receipts API from XGuard — 1 operation(s) for receipts.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Receipts
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-receipts-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-reconcile-api
+  name: XGuard Reconcile API
+  description: The Reconcile API from XGuard — 1 operation(s) for reconcile.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Reconcile
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-reconcile-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-settle-api
+  name: XGuard Settle API
+  description: The Settle API from XGuard — 1 operation(s) for settle.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Settle
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-settle-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-supported-api
+  name: XGuard Supported API
+  description: The Supported API from XGuard — 1 operation(s) for supported.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Supported
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-supported-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-test-api
+  name: XGuard Test API
+  description: The Test API from XGuard — 2 operation(s) for test.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Test
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-test-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-tools-api
+  name: XGuard Tools API
+  description: The Tools API from XGuard — 2 operation(s) for tools.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Tools
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-tools-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-verify-api
+  name: XGuard Verify API
+  description: The Verify API from XGuard — 1 operation(s) for verify.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - Verify
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-verify-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
+  - type: Documentation
+    url: https://reconcile.xguardgate.com/
+  - type: LLMsTxt
+    url: https://reconcile.xguardgate.com/llms.txt
+- aid: xguardgate-com:xguardgate-com-well-known-api
+  name: XGuard .well Known API
+  description: The .well Known API from XGuard — 3 operation(s) for .well known.
+  humanURL: https://xguardgate.com/developers
+  baseURL: https://api.xguardgate.com
+  tags:
+  - .well Known
+  properties:
+  - type: OpenAPI
+    url: openapi/xguardgate-com-well-known-api-openapi.yml
+  - type: Documentation
+    url: https://xguardgate.com/developers
+  - type: APIReference
+    url: https://api.xguardgate.com/openapi.json
   - type: Documentation
     url: https://reconcile.xguardgate.com/
   - type: LLMsTxt
@@ -180,6 +640,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/xguardgate-com-openapi-overlay.yaml
+- type: Overlay
+  url: overlays/xguardgate-com-reconcile-openapi-overlay.yaml
 - type: VulnerabilityDisclosure
   url: security/xguardgate-com-vulnerability-disclosure.yml
 - type: DomainSecurity
@@ -258,3 +722,10 @@ x-enrichment:
   status: enriched
   artifacts_added: 43
   pass: local-v3
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://api.xguardgate.com/.well-known/agent-card.json"
+  grade: "flavored"
+  protocol_version: "1.0.0"
+  control: 404
