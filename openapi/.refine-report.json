@@ -1,8 +1,8 @@
 {
   "provider": "xguardgate-com",
   "sources": [
-    "xguardgate-com-openapi.json",
-    "xguardgate-com-reconcile-openapi.json"
+    "_original/xguardgate-com-openapi.json",
+    "_original/xguardgate-com-reconcile-openapi.json"
   ],
   "outputs": [
     "xguardgate-com-well-known-api-openapi.yml",
@@ -34,13 +34,11 @@
     "xguardgate-com-verify-api-openapi.yml",
     "xguardgate-com-reconcile-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/xguardgate-com-openapi.json",
-    "archived openapi/xguardgate-com-reconcile-openapi.json"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "xguardgate-com-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
     "xguardgate-com-openapi.json: tagged paths GET /supported -> Supported",
     "xguardgate-com-openapi.json: tagged paths POST /verify -> Verify",
@@ -115,7 +113,36 @@
     "xguardgate-com-reconcile-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
     "xguardgate-com-reconcile-openapi.json: tagged paths GET /v1/reconcile -> Reconcile",
     "xguardgate-com-reconcile-openapi.json: declared missing tag: Reconcile",
-    "apis.yml register: written (+28 apis, 30 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "xguardgate-com-actions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-agent-card-json-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-discovery-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-edge-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-egress-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-facilitator-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-health-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-healthz-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-inspect-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-metrics-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-openapi-yaml-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-operations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-outcomes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-payment-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-preflight-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-pricing-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-proof-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-proofs-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-protocols-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-ready-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-receipts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-reconcile-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-settle-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-supported-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-test-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-tools-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-verify-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "xguardgate-com-well-known-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
