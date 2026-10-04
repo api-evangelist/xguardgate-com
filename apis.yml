@@ -333,7 +333,8 @@ apis:
   description: The Operations API from XGuard — 1 operation(s) for operations.
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com
-  tags:
+  tags: []
+  tags_raw:
   - Operations
   properties:
   - type: OpenAPI
@@ -370,6 +371,8 @@ apis:
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com
   tags:
+  - Payments
+  tags_raw:
   - Payment
   properties:
   - type: OpenAPI
@@ -460,6 +463,8 @@ apis:
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com
   tags:
+  - Protocol
+  tags_raw:
   - Protocols
   properties:
   - type: OpenAPI
@@ -567,7 +572,8 @@ apis:
   description: The Test API from XGuard — 2 operation(s) for test.
   humanURL: https://xguardgate.com/developers
   baseURL: https://api.xguardgate.com
-  tags:
+  tags: []
+  tags_raw:
   - Test
   properties:
   - type: OpenAPI
@@ -640,6 +646,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/xguardgate-com-capability-edges.yml
+  name: XGuard Business Capability Map
 - type: Overlay
   url: overlays/xguardgate-com-openapi-overlay.yaml
 - type: Overlay
