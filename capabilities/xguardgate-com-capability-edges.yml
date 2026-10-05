@@ -1,0 +1,27 @@
+slug: xguardgate-com
+provider: XGuard
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Egress
+  spec_file: xguardgate-com-egress-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.7
+  evidence: POST /v1/egress/credentials  Store an encrypted upstream credential (operator only); POST
+    /v1/egress/capabilities  Issue a short-lived scoped capability for an agent; DELETE /v1/egress/capabilities/{id}  Revoke
+    a capability
+  reason: The operations store encrypted credentials and issue, scope and revoke short-lived access capabilities
+    used to make credential-backed calls — credential issuance and revocation, i.e. identity and access
+    management. Some ambiguity against runtime secrets management, hence 0.7.
