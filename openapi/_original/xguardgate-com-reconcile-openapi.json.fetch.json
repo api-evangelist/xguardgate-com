@@ -1,0 +1,12 @@
+{
+ "url": "https://reconcile.xguardgate.com/openapi.json",
+ "requested_url": "https://reconcile.xguardgate.com/openapi.json",
+ "status": 200,
+ "content_type": "application/json; charset=utf-8",
+ "bytes": 1011,
+ "sha256": "4395e932854b74d7a40029261a2fbab146d2f5221144751bd1fdfa5229a36527",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the archived file is byte-identical to what the provider serves."
+}
