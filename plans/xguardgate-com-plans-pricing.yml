@@ -122,3 +122,89 @@ enterprise: none published; no "contact sales" tier
 refunds:
   policy: https://xguardgate.com/refund-policy
   summary: x402 outcomes are non-refundable (execution credit on total source failure); operator credit refunds are provider-confirmed and reconciled against the credit balance, timing subject to the checkout provider
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  - hybrid
+  - subscription
+  units: []
+  plans:
+  - name: Free extraction preview
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Multi-page evidence extraction
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Structured product offer comparison
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Deduplicated feed digest
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: xguard.web.fetch (compatible paid fetch)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: XGuard Reconcile
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Operator Usage Credits
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - one-time
+  - name: Secretless Egress
+    access: other
+    model: hybrid
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Action Rail
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: x402 facilitator relay (verify / settle)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
+  - name: Universal Edge proxy
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - other
