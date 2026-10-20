@@ -14,7 +14,7 @@ edges:
     registered_name: io.github.moelayyan90/xguard
     register_id: io.github.moelayyan90/xguard
     detected_by: sweep-agent-tools.py
-    detected: '2026-10-15'
+    detected: '2026-10-19'
   mcp_registry:
     servers:
     - io.github.moelayyan90/xguard
@@ -31,7 +31,43 @@ edges:
   - remote-domain
   detected_by: sweep-agent-tools.py
   first_seen: '2026-10-14'
+- partner_name: A2A protocol (own Agent Card)
+  partner: null
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: A2A agent
+  evidence: https://api.xguardgate.com/.well-known/agent-card.json
+  channel: provider-built
+  relationship: compatible
+  shape: a2a
+  evidence_kind: own-wellknown
+  degree: flavored
+  report_only: true
+  a2a_card:
+    grade: flavored
+    verdict: live
+    protocol_version: 1.0.0
+    deviations:
+    - no-protocolVersion
+    card_subject: unknown
+  contract_reference:
+    register: provider's own /.well-known/agent-card.json
+    spec_file: null
+    standard: A2A
+    role: a2a-agent-card
+    registered_name: XGuard — Agent Execution Gateway
+    organization: XGuard
+    matched_domain: xguardgate.com
+    matched_by: own-domain
+    detected_by: sweep-ai-agents.py
+    detected: '2026-10-20'
+  detected_by: sweep-ai-agents.py
+  first_seen: '2026-10-20'
 generated: '2026-10-14'
 method: searched
 checked:
+- https://a2aregistry.org/api/agents
 - https://registry.modelcontextprotocol.io/v0/servers
+source:
+- https://a2aregistry.org/api/agents
